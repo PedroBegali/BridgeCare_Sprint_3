@@ -1,0 +1,89 @@
+@media (min-width: 600px) and (max-width: 991px) {
+  header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    z-index: 1000;
+  }
+
+  .header__logo {
+    margin: 0;
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .header__menu {
+    margin: 0;
+    gap: 10px;
+  }
+
+  .header__botao {
+    margin: 0;
+    padding: 10px 15px;
+    white-space: nowrap;
+  }
+
+  .apresentacao {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 120px 5% 60px 5%;
+    gap: 30px;
+  }
+
+  .apresentacao__texto {
+    flex: 1;
+    margin-top: 0;
+  }
+
+  .apresentacao__texto h1 {
+    font-size: 38px;
+    max-width: 100%;
+  }
+
+  .apresentacao__texto p {
+    font-size: 1.1rem;
+    max-width: 100%;
+  }
+
+  .apresentacao__imagem {
+    flex: 1;
+    max-width: 45%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sobre_projeto_introducao,
+  .desenvolvimento {
+    flex-direction: row;
+    align-items: center;
+    padding: 80px 5%;
+    gap: 40px;
+  }
+
+  .sobre_projeto_imagens {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .imagem-ong,
+  .roadMap {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .conteudo-texto {
+    flex: 1;
+  }
+}

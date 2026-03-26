@@ -1,0 +1,38 @@
+
+@media (min-width: 1440px) {
+  main {
+    margin-top: 120px;
+  }
+
+  .apresentacao {
+    padding: 100px 10%;
+  }
+
+  .integrantes__descricao {
+    margin-top: 160px;
+    padding: 100px 10%;
+  }
+
+  .imagem-ong,
+  .roadMap {
+    max-width: 600px;
+    border-width: 1px;
+    box-shadow: 10px 10px 0px rgba(147, 225, 237, 0.1);
+  }
+
+  .sobre_projeto_introducao,
+  .desenvolvimento {
+    padding: 90px 10%;
+    gap: 120px;
+  }
+
+  .interacoes {
+    max-width: 1400px;
+    margin: 100px auto;
+  }
+
+  .quadros {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+}
