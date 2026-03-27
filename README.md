@@ -37,7 +37,7 @@ Para manter o projeto escalável e organizado, seguimos a seguinte estrutura de 
 ---
 
 ## 🕹️ Funcionalidades em Destaque
-* **Página "Sobre o Projeto":** Detalhamento dos pilares de História, Recursos e Objetivos.
+* **Página "Sobre o Projeto":** Detalhamento dos pilares da História, Recursos e Objetivos.
 * **Demo de Mini Jogo:** Protótipo funcional em JS para educação em saúde bucal.
 * **Interface Responsiva:** Design adaptado para diferentes resoluções.
 

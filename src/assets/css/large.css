@@ -1,4 +1,4 @@
-@media (min-width: 992px) and(max-width: 1439px) {
+@media (min-width: 992px) and (max-width: 1439px) {
   .apresentacao {
     flex-direction: row;
     align-items: center;
