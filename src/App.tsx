@@ -9,6 +9,10 @@ import NotFound from './pages/NotFound';
 
 import MiniJogos from './pages/jogo/Hub_jogos';
 import JogoMemoria from './pages/jogo/Jogo_Memoria';
+import Login from './pages/Login';
+import DashboardDentista from './pages/DashboardDentista';
+import DashboardBeneficiario from './pages/DashboardBeneficiario';
+import DashboardAtendente from './pages/DashboardAtendente';
 
 function App() {
   return (
@@ -26,7 +30,10 @@ function App() {
           
           <Route path="faq" element={<FAQ />} />
           <Route path="contato" element={<Contato />} />
-
+          <Route path="login" element={<Login />} />
+          <Route path="dashboard-dentista" element={<DashboardDentista />} />
+          <Route path="dashboard-beneficiario" element={<DashboardBeneficiario />} />
+          <Route path="dashboard-atendente" element={<DashboardAtendente />} />
           <Route path="*" element={<NotFound />} />
           
         </Route>
