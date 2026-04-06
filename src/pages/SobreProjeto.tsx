@@ -37,7 +37,7 @@ function SobreProjeto() {
 
         <div className="absolute bottom-0 w-full leading-none">
           <svg
-            className="relative block w-full h-[120px]"
+            className="relative block w-full h-30"
             viewBox="0 0 1200 120"
             preserveAspectRatio="none"
           >
@@ -54,7 +54,7 @@ function SobreProjeto() {
           <div className="relative p-8 md:p-12">
             <div className="absolute top-0 left-0 w-64 h-64 bg-sky-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
 
-            <div className="relative z-10 w-full aspect-square overflow-hidden rounded-[3rem] shadow-2xl border-[12px] border-white">
+            <div className="relative z-10 w-full aspect-square overflow-hidden rounded-[3rem] shadow-2xl border-12 border-white">
               <img
                 src="img/pessoa_smartphone.png"
                 alt="Tecnologia BridgeCare"
@@ -175,7 +175,7 @@ function SobreProjeto() {
           </div>
 
           <div className="flex-1 relative z-10 w-full group">
-            <div className="aspect-video bg-white/5 backdrop-blur-md rounded-[2rem] p-4 border border-white/10 shadow-inner group-hover:border-sky-500/50 transition-all duration-700">
+            <div className="aspect-video bg-white/5 backdrop-blur-md rounded-4xl p-4 border border-white/10 shadow-inner group-hover:border-sky-500/50 transition-all duration-700">
               <img
                 src="img/planejamento.png"
                 alt="Estrutura do Projeto"

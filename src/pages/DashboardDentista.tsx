@@ -212,7 +212,7 @@ const DashboardDentista = () => {
               )}
             </div>
 
-            <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100 flex items-center justify-between group cursor-pointer">
+            <div className="bg-blue-50 p-6 rounded-4xl border border-blue-100 flex items-center justify-between group cursor-pointer">
               <div className="flex items-center gap-3">
                 <HelpCircle size={24} className="text-blue-600" />
                 <span className="text-sm font-bold text-blue-700">
