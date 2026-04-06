@@ -63,10 +63,12 @@ function Footer() {
               Desenvolvido por
             </h4>
             <div className="space-y-4 text-xs">
-              {/* Pedro Begali */}
+              {/* Alan Christopher (Novo integrante) */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
-                <p className="font-bold text-slate-100">Pedro Begali Campos</p>
-                <p className="opacity-60 text-[10px]">RM: 567478</p>
+                <p className="font-bold text-slate-100">
+                  Alan Christopher G. Miranda
+                </p>
+                <p className="opacity-60 text-[10px]">RM: 567033</p>
                 <div className="flex gap-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <a
                     href="https://github.com/PedroBegali"
@@ -92,7 +94,7 @@ function Footer() {
                   </a>
                 </div>
               </div>
-
+              
               {/* Lucas Dudena */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
                 <p className="font-bold text-slate-100">
@@ -125,12 +127,10 @@ function Footer() {
                 </div>
               </div>
 
-              {/* Alan Christopher (Novo integrante) */}
+              {/* Pedro Begali */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
-                <p className="font-bold text-slate-100">
-                  Alan Christopher G. Miranda
-                </p>
-                <p className="opacity-60 text-[10px]">RM: 567033</p>
+                <p className="font-bold text-slate-100">Pedro Begali Campos</p>
+                <p className="opacity-60 text-[10px]">RM: 567478</p>
                 <div className="flex gap-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <a
                     href="https://github.com/PedroBegali"
@@ -156,11 +156,12 @@ function Footer() {
                   </a>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
 
-        {/* Rodapé Final */}
+      
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest">
           <p>&copy; 2025 BridgeCare. Todos os direitos reservados.</p>
           <p>Challenge TdB - FIAP</p>

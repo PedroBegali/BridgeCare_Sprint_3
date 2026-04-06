@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Brain, Sparkles, HelpCircle } from "lucide-react";
 
 const MiniJogos = () => {
   const games = [
@@ -6,7 +7,7 @@ const MiniJogos = () => {
       id: "memoria",
       titulo: "Jogo da Memória",
       descricao: "Encontre os pares dos instrumentos e hábitos saudáveis!",
-      icone: "🦷",
+      icone: <Brain className="text-white" size={32} />,
       disponivel: true,
       cor: "bg-blue-500",
     },
@@ -14,7 +15,7 @@ const MiniJogos = () => {
       id: "escovacao",
       titulo: "Escovação Ninja",
       descricao: "Elimine as bactérias antes que o tempo acabe!",
-      icone: "🪥",
+      icone: <Sparkles className="text-white" size={32} />,
       disponivel: false,
       cor: "bg-green-500",
     },
@@ -22,7 +23,7 @@ const MiniJogos = () => {
       id: "quiz",
       titulo: "Quiz do Sorriso",
       descricao: "Você sabe tudo sobre saúde bucal? Teste seus conhecimentos!",
-      icone: "✨",
+      icone: <HelpCircle className="text-white" size={32} />,
       disponivel: false,
       cor: "bg-purple-500",
     },
@@ -58,7 +59,7 @@ const MiniJogos = () => {
               )}
 
               <div
-                className={`${game.cor} w-16 h-16 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-lg`}
+                className={`${game.cor} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
               >
                 {game.icone}
               </div>
