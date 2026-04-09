@@ -81,7 +81,7 @@ const Jogo = () => {
 
   return (
     <section className="min-h-screen bg-blue-50 py-12 px-6 flex flex-col items-center font-sans">
-      <div className="w-full max-w-2xl bg-white p-8 rounded-[2rem] shadow-xl border border-blue-100">
+      <div className="w-full max-w-2xl bg-white p-8 rounded-4xl shadow-xl border border-blue-100">
         <div className="flex justify-between items-center mb-8">
           <Link
             to="/mini-jogos"

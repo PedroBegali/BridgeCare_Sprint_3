@@ -166,7 +166,7 @@ const DashboardAtendente = () => {
               {aprovados.map((beneficiario) => (
                 <div
                   key={beneficiario.id}
-                  className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:border-blue-200 transition-all group"
+                  className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm hover:border-blue-200 transition-all group"
                 >
                   <h4 className="font-bold text-slate-900 mb-1">
                     {beneficiario.nome}
