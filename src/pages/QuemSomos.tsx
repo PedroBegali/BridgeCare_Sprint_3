@@ -1,25 +1,31 @@
+import perfilLucas from "../assets/lucasPerfil.jpg"
+import perfilPedro from "../assets/pedroPerfil.jpg"
+import perfilAlan from "../assets/alanPerfil.jpeg"
+import githubIcon from "../assets/github_icon.png"
+import linkedlnIcon from "../assets/linkedIn_icon.png"
+
 function QuemSomos() {
   const integrantes = [
     {
       nome: "Pedro Begali Campos",
       rm: "567478",
-      foto: "img/pedroPerfil.jpg",
+      foto: (perfilPedro),
       github: "https://github.com/PedroBegali",
       linkedin: "https://www.linkedin.com/in/pedro-begalli-604208351/",
     },
     {
       nome: "Lucas de Souza Dudena",
       rm: "567600",
-      foto: "img/lucasPerfil.jpg",
+      foto: (perfilLucas),
       github: "https://github.com/ldudena",
       linkedin: "https://www.linkedin.com/in/lucas-de-souza-dudena-079646382",
     },
     {
       nome: "Alan Christopher G. Miranda",
       rm: "567033",
-      foto: "img/avatar_placeholder.png",
-      github: "#",
-      linkedin: "#",
+      foto: (perfilAlan),
+      github: "https://github.com/alanchristophermiranda2005-coder",
+      linkedin: "https://www.linkedin.com/in/alanchristophergonzagamiranda/",
     },
   ];
 
@@ -67,7 +73,7 @@ function QuemSomos() {
                 >
                   <img
                     className="w-5 h-5 group-hover/icon:invert transition-all"
-                    src="img/github_icon.png"
+                    src={githubIcon}
                     alt="Github"
                   />
                 </a>
@@ -79,7 +85,7 @@ function QuemSomos() {
                 >
                   <img
                     className="w-5 h-5 group-hover/icon:invert transition-all"
-                    src="img/linkedIn_icon.png"
+                    src={linkedlnIcon}
                     alt="LinkedIn"
                   />
                 </a>

@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import githubIcon from "../assets/github_icon.png"
+import linkedlnIcon from "../assets/linkedIn_icon.png"
 
 function Footer() {
   return (
@@ -71,24 +73,24 @@ function Footer() {
                 <p className="opacity-60 text-[10px]">RM: 567033</p>
                 <div className="flex gap-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <a
-                    href="https://github.com/PedroBegali"
+                    href="https://github.com/alanchristophermiranda2005-coder"
                     target="_blank"
                     rel="noreferrer"
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/github_icon.png"
+                      src={githubIcon}
                       alt="Github"
                     />
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/pedro-begalli-604208351/"
+                    href="https://www.linkedin.com/in/alanchristophergonzagamiranda/"
                     target="_blank"
                     rel="noreferrer"
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/linkedIn_icon.png"
+                      src={linkedlnIcon}
                       alt="LinkedIn"
                     />
                   </a>
@@ -109,7 +111,7 @@ function Footer() {
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/github_icon.png"
+                      src={githubIcon}
                       alt="Github"
                     />
                   </a>
@@ -120,7 +122,7 @@ function Footer() {
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/linkedIn_icon.png"
+                      src={linkedlnIcon}
                       alt="LinkedIn"
                     />
                   </a>
@@ -139,7 +141,7 @@ function Footer() {
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/github_icon.png"
+                      src={githubIcon}
                       alt="Github"
                     />
                   </a>
@@ -150,7 +152,7 @@ function Footer() {
                   >
                     <img
                       className="w-4 h-4 invert"
-                      src="img/linkedIn_icon.png"
+                      src={linkedlnIcon}
                       alt="LinkedIn"
                     />
                   </a>

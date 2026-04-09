@@ -6,7 +6,6 @@ import FAQ from "./pages/FAQ";
 import Contato from "./pages/Contato";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
-
 import MiniJogos from "./pages/jogo/Hub_jogos";
 import JogoMemoria from "./pages/jogo/Jogo_Memoria";
 import Login from "./pages/Login";

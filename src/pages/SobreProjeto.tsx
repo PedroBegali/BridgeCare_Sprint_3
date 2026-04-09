@@ -1,4 +1,7 @@
-import { History, DollarSign, Target, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { History, DollarSign, Target, Sparkles} from "lucide-react";
+import pessoa_smartPhone from "../assets/pessoa_smartphone.png"
+import planejamento from "../assets/planejamento.png"
 
 function SobreProjeto() {
   const pilares = [
@@ -23,17 +26,20 @@ function SobreProjeto() {
     <main className="min-h-screen bg-white selection:bg-sky-100 selection:text-sky-600">
       <section className="relative bg-slate-900 pt-32 pb-48 overflow-hidden">
         <div className="container mx-auto px-6 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
-            Sobre o <span className="text-sky-400">Projeto</span>
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Transformando a gestão de dados da Turma do Bem para ampliar o
-            impacto social e devolver sorrisos.
-          </p>
-          <button className="bg-sky-500 hover:bg-sky-400 text-white font-bold py-4 px-10 rounded-full transition-all shadow-lg hover:shadow-sky-500/20 active:scale-95">
-            Conheça Nossa Missão
-          </button>
-        </div>
+  <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
+    Sobre o <span className="text-sky-400">Projeto</span>
+  </h1>
+  <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+    Transformando a gestão de dados da Turma do Bem para ampliar o
+    impacto social e devolver sorrisos.
+  </p>
+  <Link 
+    to="/mini-jogos" 
+    className="inline-block bg-sky-500 hover:bg-sky-400 text-white font-bold py-4 px-10 rounded-full transition-all shadow-lg hover:shadow-sky-500/20 active:scale-95"
+  >
+    Conheça Nosso Diferencial!
+  </Link>
+</div>
 
         <div className="absolute bottom-0 w-full leading-none">
           <svg
@@ -56,7 +62,7 @@ function SobreProjeto() {
 
             <div className="relative z-10 w-full aspect-square overflow-hidden rounded-[3rem] shadow-2xl border-12 border-white">
               <img
-                src="img/pessoa_smartphone.png"
+                src={pessoa_smartPhone}
                 alt="Tecnologia BridgeCare"
                 className="w-full h-full object-cover"
               />
@@ -177,7 +183,7 @@ function SobreProjeto() {
           <div className="flex-1 relative z-10 w-full group">
             <div className="aspect-video bg-white/5 backdrop-blur-md rounded-4xl p-4 border border-white/10 shadow-inner group-hover:border-sky-500/50 transition-all duration-700">
               <img
-                src="img/planejamento.png"
+                src={planejamento}
                 alt="Estrutura do Projeto"
                 className="w-full h-full object-cover rounded-2xl"
               />
