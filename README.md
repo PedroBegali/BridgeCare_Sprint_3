@@ -8,7 +8,7 @@ Nesta etapa, o projeto deixou de ser um conjunto de páginas estáticas para se 
 
 ## 👥 Equipe
 * **Alan Christopher G. Miranda**
-* **Lucas de Souza Dudena**
+* **Lucas de S. Dudena**
 * **Pedro Begali Campos**
 
 ---
