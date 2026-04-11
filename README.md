@@ -60,5 +60,7 @@ Otimizada para o processo de *Build* profissional:
 ## 🔗 Links Úteis
 * **Repositório:** [https://github.com/PedroBegali/BridgeCare_Sprint_3](https://github.com/PedroBegali/BridgeCare_Sprint_3)
 
+* **Vídeo:** [https://youtu.be/fwBwqeGP2Os](https://youtu.be/fwBwqeGP2Os)
+
 ---
 *Projeto desenvolvido para fins acadêmicos - FIAP 2026.*
