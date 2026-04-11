@@ -15,7 +15,7 @@ const NotFound = () => {
   return (
 <main className="min-h-screen bg-slate-900 flex items-center justify-center px-6 relative overflow-hidden">
       
-<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] -z-10"></div>
+<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-blue-600/20 rounded-full blur-[120px] -z-10"></div>
 <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-[80px] -z-10 animate-pulse"></div>
  
       <div className="container max-w-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-12 md:p-20 rounded-[3.5rem] shadow-2xl text-center relative z-10">
