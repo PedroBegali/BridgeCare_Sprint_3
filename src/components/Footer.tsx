@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import githubIcon from "../assets/github_icon.png"
-import linkedlnIcon from "../assets/linkedIn_icon.png"
+import githubIcon from "../assets/github_icon.png";
+import linkedlnIcon from "../assets/linkedIn_icon.png";
 
 function Footer() {
   return (
@@ -65,7 +65,7 @@ function Footer() {
               Desenvolvido por
             </h4>
             <div className="space-y-4 text-xs">
-              {/* Alan Christopher (Novo integrante) */}
+              {/* Alan Christopher */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
                 <p className="font-bold text-slate-100">
                   Alan Christopher G. Miranda
@@ -96,7 +96,7 @@ function Footer() {
                   </a>
                 </div>
               </div>
-              
+
               {/* Lucas Dudena */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
                 <p className="font-bold text-slate-100">
@@ -158,12 +158,10 @@ function Footer() {
                   </a>
                 </div>
               </div>
-              
             </div>
           </div>
         </div>
 
-      
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest">
           <p>&copy; 2025 BridgeCare. Todos os direitos reservados.</p>
           <p>Challenge TdB - FIAP</p>

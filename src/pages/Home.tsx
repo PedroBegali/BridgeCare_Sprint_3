@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Calendar, Activity, ShieldCheck, ArrowRight } from "lucide-react";
-import criancaVoluntaria from "../assets/criancaVoluntaria.png"
+import criancaVoluntaria from "../assets/criancaVoluntaria.png";
 
 function Home() {
   const diferenciais = [
@@ -29,50 +29,50 @@ function Home() {
 
   return (
     <main className="animate-in fade-in duration-700">
-<section className="relative bg-slate-900 pt-20 pb-45 overflow-hidden">
-  <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12 relative z-10">
-    
-    <div className="flex-1 text-center md:text-left">
-      <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-6 tracking-tight">
-        Conectando <span className="text-sky-400">Cuidado</span> <br /> 
-        e Inovando
-      </h1>
-      <p className="text-xl text-slate-300 mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed">
-        Transformamos a experiência de saúde através de soluções
-        inteligentes que unem pacientes e médicos de forma humana e eficiente.
-      </p>
-      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-        <Link
-          to="/sobre"
-          className="bg-sky-500 text-white px-10 py-4 rounded-full font-bold hover:bg-sky-400 hover:-translate-y-1 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
-        >
-          Saiba mais sobre o projeto
-        </Link>
-      </div>
-    </div>
+      <section className="relative bg-slate-900 pt-20 pb-45 overflow-hidden">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12 relative z-10">
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-6 tracking-tight">
+              Conectando <span className="text-sky-400">Cuidado</span> <br />e
+              Inovando
+            </h1>
+            <p className="text-xl text-slate-300 mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed">
+              Transformamos a experiência de saúde através de soluções
+              inteligentes que unem pacientes e médicos de forma humana e
+              eficiente.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              <Link
+                to="/sobre"
+                className="bg-sky-500 text-white px-10 py-4 rounded-full font-bold hover:bg-sky-400 hover:-translate-y-1 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+              >
+                Saiba mais sobre o projeto
+              </Link>
+            </div>
+          </div>
 
-    <div className="flex-1 relative">
-      <img
-        className="rounded-[3rem] shadow-2xl hover:scale-[1.02] transition-transform duration-500 border border-white/10"
-        src={criancaVoluntaria}
-        alt="Dentista e criança fazendo sinal de positivo"
-      />
-    </div>
-  </div>
+          <div className="flex-1 relative">
+            <img
+              className="rounded-[3rem] shadow-2xl hover:scale-[1.02] transition-transform duration-500 border border-white/10"
+              src={criancaVoluntaria}
+              alt="Dentista e criança fazendo sinal de positivo"
+            />
+          </div>
+        </div>
 
-  <div className="absolute bottom-0 left-0 w-full leading-none overflow-hidden">
-    <svg 
-      className="relative block w-full h-20 md:h-30" 
-      viewBox="0 0 1200 120" 
-      preserveAspectRatio="none"
-    >
-      <path 
-        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C0,0,10.18,20,100,40C190,60,263,67,321.39,56.44Z" 
-        fill="#f8fafc"
-      ></path>
-    </svg>
-  </div>
-</section>
+        <div className="absolute bottom-0 left-0 w-full leading-none overflow-hidden">
+          <svg
+            className="relative block w-full h-20 md:h-30"
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C0,0,10.18,20,100,40C190,60,263,67,321.39,56.44Z"
+              fill="#f8fafc"
+            ></path>
+          </svg>
+        </div>
+      </section>
 
       <section className="bg-slate-50 py-24 px-6">
         <div className="container mx-auto">

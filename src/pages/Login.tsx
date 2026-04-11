@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
- 
+
 const Login = () => {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const navigate = useNavigate();
- 
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErro("");
- 
+
     const userLower = usuario.toLowerCase();
- 
+
     if (userLower.startsWith("dt")) {
       console.log("Login como Dentista");
       navigate("/dashboard-dentista");
@@ -26,7 +26,7 @@ const Login = () => {
       setErro("Usuário não reconhecido. Use os prefixos dt, at ou bn.");
     }
   };
- 
+
   return (
     <main className="min-h-[80vh] flex items-center justify-center bg-slate-50 px-6 py-12">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/60 border border-slate-100">
@@ -36,7 +36,7 @@ const Login = () => {
             Acesse sua conta BridgeCare
           </p>
         </div>
- 
+
         <form className="space-y-6" onSubmit={handleLogin}>
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
@@ -51,7 +51,7 @@ const Login = () => {
               onChange={(e) => setUsuario(e.target.value)}
             />
           </div>
- 
+
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
               Senha
@@ -64,13 +64,13 @@ const Login = () => {
               onChange={(e) => setSenha(e.target.value)}
             />
           </div>
- 
+
           {erro && (
             <p className="text-red-500 text-xs font-bold text-center animate-pulse">
               {erro}
             </p>
           )}
- 
+
           <button
             type="submit"
             className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 active:scale-[0.98] transition-all tracking-widest uppercase text-sm"
@@ -78,7 +78,7 @@ const Login = () => {
             Entrar no Portal
           </button>
         </form>
- 
+
         <div className="mt-8 pt-8 border-t border-slate-50 text-center">
           <p className="text-xs text-slate-400 font-medium">
             Esqueceu suas credenciais?{" "}
@@ -91,5 +91,5 @@ const Login = () => {
     </main>
   );
 };
- 
+
 export default Login;
