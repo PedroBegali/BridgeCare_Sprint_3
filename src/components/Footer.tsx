@@ -163,7 +163,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest">
-          <p>&copy; 2025 BridgeCare. Todos os direitos reservados.</p>
+          <p>&copy; 2026 BridgeCare. Todos os direitos reservados.</p>
           <p>Challenge TdB - FIAP</p>
         </div>
       </div>

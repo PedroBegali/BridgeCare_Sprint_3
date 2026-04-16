@@ -30,7 +30,7 @@ A stack foi escolhida para garantir performance e facilidade de manutenção:
 
 | Tecnologia | Finalidade |
 | :--- | :--- |
-| **React 18** | Biblioteca base para construção da interface declarativa. |
+| **React 19** | Biblioteca base para construção da interface declarativa. |
 | **TypeScript** | Tipagem estática para evitar erros em tempo de execução. |
 | **Vite** | Build tool de última geração para um ambiente dev ultra rápido. |
 | **Tailwind CSS** | Framework de estilização utility-first para design responsivo. |
@@ -44,7 +44,7 @@ A stack foi escolhida para garantir performance e facilidade de manutenção:
 Otimizada para o processo de *Build* profissional:
 
 * `/src/assets`: Imagens e recursos de mídia processados e otimizados pelo Vite.
-* `/src/components`: Elementos reutilizáveis (Header, Footer, Cards).
+* `/src/components`: Elementos reutilizáveis (Header, Footer, Layout).
 * `/src/pages`: Componentes de página (Home, Sobre, Dashboards).
 * `/src/App.tsx`: Gerenciador de rotas e estrutura principal.
 
