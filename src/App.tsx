@@ -12,6 +12,9 @@ import Login from "./pages/Login";
 import DashboardDentista from "./pages/DashboardDentista";
 import DashboardBeneficiario from "./pages/DashboardBeneficiario";
 import DashboardAtendente from "./pages/DashboardAtendente";
+import Doadores from "./pages/Doadores";
+import ProgramasSociais from "./pages/ProgramasSociais";
+import Relatorios from "./pages/Relatorios";
 
 function App() {
   return (
@@ -35,6 +38,9 @@ function App() {
             element={<DashboardBeneficiario />}
           />
           <Route path="dashboard-atendente" element={<DashboardAtendente />} />
+          <Route path="doadores" element={<Doadores />} />
+          <Route path="programas-sociais" element={<ProgramasSociais />} />
+          <Route path="relatorios" element={<Relatorios />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

@@ -11,6 +11,9 @@ function Header() {
     { to: "/quem-somos", label: "Quem somos" },
     { to: "/sobre", label: "Sobre o projeto" },
     { to: "/mini-jogos", label: "Mini jogos" },
+    { to: "/doadores", label: "Doadores" },
+    { to: "/programas-sociais", label: "Programas Sociais" },
+    { to: "/relatorios", label: "Relatórios" },
     { to: "/faq", label: "FAQ" },
     { to: "/contato", label: "Contato" },
   ];

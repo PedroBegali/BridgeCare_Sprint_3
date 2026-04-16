@@ -5,118 +5,115 @@ import {
   CalendarClock,
   UserX,
   Search,
-  Phone,
-  Video,
   History,
   AlertCircle,
   MapPin,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
+import type { PreBeneficiario } from "../types/types";
+import {
+  preBeneficiarios,
+  triagens,
+  beneficiarios,
+  buscarPreBeneficiarioPorId,
+  buscarEnderecoPorId,
+  buscarProgramaPorId,
+  buscarDentistaPorId,
+  atendimentos,
+} from "../data/mockData";
 
-const CardSolicitacao = ({ solicitacao }: any) => (
-  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-    <div className="flex justify-between items-start">
-      <div className="flex gap-4 items-center">
-        <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
-          <UserPlus size={28} />
-        </div>
-        <div>
-          <h4 className="font-bold text-slate-900 text-xl">
-            {solicitacao.nome}
-          </h4>
-          <p className="text-xs text-slate-400 font-bold uppercase">
-            {solicitacao.idade} anos • {solicitacao.responsavel}
-          </p>
+const CardSolicitacao = ({
+  preBenef,
+  endereco,
+}: {
+  preBenef: PreBeneficiario;
+  endereco: string;
+}) => {
+  const hoje = new Date();
+  const nascimento = new Date(preBenef.dt_nascimento + "T00:00:00");
+  const idade = hoje.getFullYear() - nascimento.getFullYear();
+
+  return (
+    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+      <div className="flex justify-between items-start">
+        <div className="flex gap-4 items-center">
+          <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+            <UserPlus size={28} />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 text-xl">
+              {preBenef.nm_nome}
+            </h4>
+            <p className="text-xs text-slate-400 font-bold uppercase">
+              {idade} anos -{" "}
+              {preBenef.sx_pre_beneficiario === "M" ? "Masculino" : "Feminino"}
+            </p>
+          </div>
         </div>
       </div>
-      {solicitacao.acessibilidade && (
-        <span className="flex items-center gap-1 bg-purple-100 text-purple-700 text-[10px] font-black px-3 py-1 rounded-full animate-pulse">
-          <Video size={12} /> VÍDEO CHAMADA
-        </span>
-      )}
-    </div>
-    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-      <p className="text-sm text-slate-600">
-        <strong>Telefone:</strong> {solicitacao.contato}
-      </p>
-      <p className="text-sm text-slate-600">
-        <strong>E-mail:</strong> {solicitacao.email}
-      </p>
-    </div>
-    <button className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all uppercase tracking-widest text-xs">
-      AVALIAR E FINALIZAR CADASTRO
-    </button>
-  </div>
-);
-
-const ItemTriagem = ({ item }: any) => (
-  <div className="bg-white p-8 rounded-[2.5rem] border-l-8 border-amber-400 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
-    <div>
-      <h4 className="text-xl font-bold text-slate-900">{item.nome}</h4>
-      <p className="text-sm text-amber-600 font-bold uppercase tracking-tight flex items-center gap-2">
-        <AlertCircle size={16} /> Motivo: {item.motivo}
-      </p>
-    </div>
-    <div className="flex gap-4">
-      <button className="flex items-center gap-2 bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all">
-        <Phone size={18} /> Ligar para {item.telefone}
-      </button>
-      <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
-        <CalendarClock size={18} /> REMARCAR AGORA
+      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+        <p className="text-sm text-slate-600">
+          <strong>CPF:</strong> {preBenef.nr_cpf}
+        </p>
+        <p className="text-sm text-slate-600">
+          <strong>Telefone:</strong> {preBenef.nr_telefone}
+        </p>
+        <p className="text-sm text-slate-600">
+          <strong>E-mail:</strong> {preBenef.email}
+        </p>
+        <p className="text-sm text-slate-600">
+          <strong>Endereco:</strong> {endereco}
+        </p>
+        {preBenef.ds_bucal && (
+          <p className="text-sm text-slate-600 italic bg-blue-50 p-3 rounded-xl border-l-4 border-blue-400">
+            <strong>Saude Bucal:</strong> {preBenef.ds_bucal}
+          </p>
+        )}
+      </div>
+      <button className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all uppercase tracking-widest text-xs">
+        AVALIAR E FINALIZAR CADASTRO
       </button>
     </div>
-  </div>
-);
+  );
+};
 
 const DashboardAtendente = () => {
   const [secaoAtiva, setSecaoAtiva] = useState("novos");
   const [buscaCpf, setBuscaCpf] = useState("");
 
-  const reprovados = [
-    {
-      id: 1,
-      nome: "Thiago Lima",
-      motivo: "Fora da faixa etária",
-      contato: "(11) 98888-7777",
-    },
-  ];
-  const aprovados = [
-    {
-      id: 101,
-      nome: "Ana Julia",
-      cpf: "123.456.789-00",
-      responsavel: "Carla Souza",
-      dentista: "Dr. Ricardo",
-      status: "Em tratamento",
-    },
-  ];
-  const triagemPendente = [
-    {
-      id: 201,
-      nome: "Marcos Vinicius",
-      motivo: "Falta por imprevisto",
-      telefone: "(11) 97777-6666",
-    },
-  ];
-  const novasSolicitacoes = [
-    {
-      id: 301,
-      nome: "Beatriz Santos",
-      idade: 14,
-      contato: "(11) 96666-5555",
-      email: "bia@email.com",
-      acessibilidade: true,
-      responsavel: "Marta Santos",
-    },
-    {
-      id: 302,
-      nome: "Rodrygo Gomes",
-      idade: 17,
-      contato: "(11) 96666-5555",
-      email: "dryguin@email.com",
-      acessibilidade: false,
-      responsavel: "Ailton P. Gomes",
-    },
-  ];
+  const triagensAprovadas = triagens.filter((t) => t.st_criterios === "A");
+  const triagensReprovadas = triagens.filter((t) => t.st_criterios === "R");
+
+  const preBenefSemTriagem = preBeneficiarios.filter(
+    (pb) => !triagens.some((t) => t.id_pre_beneficiario === pb.id_pre_beneficiario)
+  );
+
+  const beneficiariosAprovados = beneficiarios.map((b) => {
+    const preBenef = buscarPreBeneficiarioPorId(b.id_pre_beneficiario);
+    const programa = buscarProgramaPorId(b.id_programa);
+    const atendimentosBenef = atendimentos.filter(
+      (a) => a.id_beneficiario === b.id_beneficiario
+    );
+    const ultimoAtend =
+      atendimentosBenef.length > 0
+        ? atendimentosBenef[atendimentosBenef.length - 1]
+        : undefined;
+    const dentista = ultimoAtend
+      ? buscarDentistaPorId(ultimoAtend.id_dentista)
+      : undefined;
+
+    return {
+      beneficiario: b,
+      preBenef,
+      programa,
+      dentista,
+    };
+  });
+
+  const aprovadosFiltrados = beneficiariosAprovados.filter((item) =>
+    item.preBenef?.nr_cpf.includes(buscaCpf)
+  );
 
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6">
@@ -124,7 +121,7 @@ const DashboardAtendente = () => {
         <section className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
             <h1 className="text-3xl font-black text-slate-900">
-              Painel de Gestão
+              Painel de Gestao
             </h1>
             <p className="text-slate-500 font-medium italic">
               Central de Atendimento BridgeCare
@@ -153,13 +150,36 @@ const DashboardAtendente = () => {
           </nav>
         </section>
 
-        {/* Content Area */}
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {secaoAtiva === "novos" && (
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {novasSolicitacoes.map((s) => (
-                <CardSolicitacao key={s.id} solicitacao={s} />
-              ))}
+            <section className="space-y-6">
+              <p className="text-sm text-slate-500 ml-2">
+                Pre-beneficiarios aguardando triagem comunitaria ({preBenefSemTriagem.length})
+              </p>
+              {preBenefSemTriagem.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {preBenefSemTriagem.map((pb) => {
+                    const end = buscarEnderecoPorId(pb.id_endereco);
+                    return (
+                      <CardSolicitacao
+                        key={pb.id_pre_beneficiario}
+                        preBenef={pb}
+                        endereco={
+                          end
+                            ? `${end.nm_rua}, ${end.nr_logradouro} - ${end.nm_bairro}`
+                            : "Endereco nao informado"
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 text-center">
+                  <p className="text-slate-400 italic">
+                    Todos os pre-beneficiarios ja passaram pela triagem.
+                  </p>
+                </div>
+              )}
             </section>
           )}
 
@@ -169,32 +189,51 @@ const DashboardAtendente = () => {
                 <Search className="text-slate-400 ml-2" size={20} />
                 <input
                   type="text"
-                  placeholder="Digite o CPF do beneficiário para acessar seu perfil..."
+                  placeholder="Digite o CPF do beneficiario para acessar seu perfil..."
                   className="w-full py-4 rounded-2xl bg-transparent border-none focus:ring-0 outline-none transition-all font-medium"
                   value={buscaCpf}
                   onChange={(e) => setBuscaCpf(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {aprovados.map((b) => (
+                {aprovadosFiltrados.map((item) => (
                   <div
-                    key={b.id}
+                    key={item.beneficiario.id_beneficiario}
                     className="bg-white p-6 rounded-4xl border border-slate-100 shadow-sm hover:border-blue-200 transition-all"
                   >
-                    <h4 className="font-bold text-slate-900 mb-1">{b.nome}</h4>
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-slate-900">
+                        {item.preBenef?.nm_nome}
+                      </h4>
+                      <span
+                        className={`text-[10px] font-black px-2 py-1 rounded-full flex items-center gap-1 ${
+                          item.beneficiario.st_procedimento === "A"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {item.beneficiario.st_procedimento === "A" ? (
+                          <><CheckCircle2 size={10} /> Ativo</>
+                        ) : (
+                          <><XCircle size={10} /> Inativo</>
+                        )}
+                      </span>
+                    </div>
                     <p className="text-xs text-slate-400 font-bold mb-4">
-                      CPF: {b.cpf}
+                      CPF: {item.preBenef?.nr_cpf}
                     </p>
                     <div className="space-y-2 mb-6 text-slate-500 text-xs">
                       <p>
-                        <strong>Resp:</strong> {b.responsavel}
+                        <strong>Programa:</strong>{" "}
+                        {item.programa?.nm_programa_social || "N/A"}
                       </p>
                       <p>
-                        <strong>Dentista:</strong> {b.dentista}
+                        <strong>Dentista:</strong>{" "}
+                        {item.dentista?.nm_nome || "Ainda nao atribuido"}
                       </p>
                     </div>
                     <button className="w-full bg-slate-900 text-white text-[10px] font-black py-3 rounded-xl hover:bg-blue-600 transition-all uppercase flex items-center justify-center gap-2">
-                      <History size={14} /> VER HISTÓRICO
+                      <History size={14} /> VER HISTORICO
                     </button>
                   </div>
                 ))}
@@ -204,38 +243,96 @@ const DashboardAtendente = () => {
 
           {secaoAtiva === "triagem" && (
             <section className="space-y-6">
-              {triagemPendente.map((item) => (
-                <ItemTriagem key={item.id} item={item} />
-              ))}
+              <p className="text-sm text-slate-500 ml-2">
+                Triagens aprovadas ({triagensAprovadas.length})
+              </p>
+              {triagensAprovadas.map((triagem) => {
+                const preBenef = buscarPreBeneficiarioPorId(
+                  triagem.id_pre_beneficiario
+                );
+                if (!preBenef) return null;
+                return (
+                  <div
+                    key={triagem.id_triagem}
+                    className="bg-white p-8 rounded-[2.5rem] border-l-8 border-green-400 shadow-sm space-y-3"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="text-xl font-bold text-slate-900">
+                          {preBenef.nm_nome}
+                        </h4>
+                        <p className="text-xs text-slate-400 font-bold">
+                          CPF: {preBenef.nr_cpf} | Triagem em{" "}
+                          {new Date(triagem.dt_hr_triagem + "T00:00:00").toLocaleDateString(
+                            "pt-BR"
+                          )}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-green-100 text-green-600 flex items-center gap-1">
+                        <CheckCircle2 size={12} /> Aprovado
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-600 italic bg-green-50 p-4 rounded-2xl border-l-4 border-green-400">
+                      {triagem.ds_triagem}
+                    </p>
+                  </div>
+                );
+              })}
             </section>
           )}
 
           {secaoAtiva === "reprovados" && (
-            <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
-              <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                <AlertCircle className="text-red-500" /> Orientações de
-                Atendimento
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {reprovados.map((p) => (
-                  <div
-                    key={p.id}
-                    className="p-6 bg-red-50 rounded-3xl border border-red-100 space-y-4"
-                  >
-                    <div>
-                      <h4 className="font-bold text-slate-900">{p.nome}</h4>
-                      <p className="text-xs text-red-600 font-bold uppercase">
-                        {p.motivo}
-                      </p>
-                    </div>
-                    <p className="text-sm text-slate-500">
-                      Indicar Unidade mais próxima: {p.contato}
-                    </p>
-                    <button className="w-full bg-white text-slate-900 text-[10px] font-black py-3 rounded-xl border border-slate-200 hover:bg-slate-900 hover:text-white transition-all uppercase flex items-center justify-center gap-2">
-                      <MapPin size={14} /> INDICAR POSTO PÚBLICO
-                    </button>
+            <section className="space-y-8">
+              <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 space-y-8">
+                <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <AlertCircle className="text-red-500" /> Orientacoes de
+                  Atendimento
+                </h2>
+                {triagensReprovadas.length > 0 ? (
+                  <div className="space-y-6">
+                    {triagensReprovadas.map((triagem) => {
+                      const preBenef = buscarPreBeneficiarioPorId(
+                        triagem.id_pre_beneficiario
+                      );
+                      if (!preBenef) return null;
+                      return (
+                        <div
+                          key={triagem.id_triagem}
+                          className="p-6 bg-red-50 rounded-3xl border border-red-100 space-y-4"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-bold text-slate-900">
+                                {preBenef.nm_nome}
+                              </h4>
+                              <p className="text-xs text-red-600 font-bold uppercase flex items-center gap-1">
+                                <XCircle size={12} /> Reprovado na Triagem
+                              </p>
+                            </div>
+                            <span className="text-xs text-slate-400">
+                              {new Date(triagem.dt_hr_triagem + "T00:00:00").toLocaleDateString(
+                                "pt-BR"
+                              )}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-600 italic">
+                            {triagem.ds_triagem}
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            Contato: {preBenef.nr_telefone} | {preBenef.email}
+                          </p>
+                          <button className="w-full bg-white text-slate-900 text-[10px] font-black py-3 rounded-xl border border-slate-200 hover:bg-slate-900 hover:text-white transition-all uppercase flex items-center justify-center gap-2">
+                            <MapPin size={14} /> INDICAR POSTO PUBLICO
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                ) : (
+                  <p className="text-center text-slate-400 italic py-4">
+                    Nenhuma triagem reprovada registrada.
+                  </p>
+                )}
               </div>
             </section>
           )}
