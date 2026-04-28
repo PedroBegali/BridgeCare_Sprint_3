@@ -12,11 +12,15 @@ import Login from "./pages/Login";
 import DashboardDentista from "./pages/DashboardDentista";
 import DashboardBeneficiario from "./pages/DashboardBeneficiario";
 import DashboardAtendente from "./pages/DashboardAtendente";
+import PainelEvidencias from "./pages/painel/PainelEvidencias";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Painel de Evidências - full-screen, sem header/footer */}
+        <Route path="painel" element={<PainelEvidencias />} />
+
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="quem-somos" element={<QuemSomos />} />
