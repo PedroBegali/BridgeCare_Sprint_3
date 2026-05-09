@@ -1,7 +1,26 @@
 import { Link } from "react-router-dom";
-import { Calendar, Activity, ShieldCheck, ArrowRight } from "lucide-react";
+import {
+  Calendar,
+  Activity,
+  ShieldCheck,
+  ArrowRight,
+  Headset,
+  X,
+  CheckCircle2,
+} from "lucide-react";
 import criancaVoluntaria from "../assets/criancaVoluntaria.png";
-
+import dentista_explicando from "../assets/dentista_explicando.jpg";
+import dentista_avaliando_paciente from "../assets/dentista_avaliando_paciente.jpg";
+import dentista_preparando_equipamento from "../assets/dentista_preparando_equipamento.jpg";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+type AtendimentoFormData = {
+  nome: string;
+  responsavel?: string;
+  libras: string;
+  telefone: string;
+  email: string;
+};
 function Home() {
   const diferenciais = [
     {
@@ -26,6 +45,47 @@ function Home() {
       link: "/login",
     },
   ];
+
+  const imagensCarrossel = [
+    dentista_explicando,
+    dentista_avaliando_paciente,
+    dentista_preparando_equipamento,
+  ];
+
+  const [slideAtual, setSlideAtual] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideAtual((prev) => (prev + 1) % imagensCarrossel.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<AtendimentoFormData>();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+
+  const [nomeCliente, setNomeCliente] = useState("");
+
+  const onSubmit = (data: AtendimentoFormData) => {
+    console.log("Dados do Atendimento:", data);
+
+    setNomeCliente(data.nome);
+    setEnviado(true);
+
+    setTimeout(() => {
+      setIsModalOpen(false);
+      setEnviado(false);
+      setNomeCliente("");
+      reset();
+    }, 3000);
+  };
 
   return (
     <main className="animate-in fade-in duration-700">
@@ -74,6 +134,72 @@ function Home() {
         </div>
       </section>
 
+      <section className="py-24 bg-slate-50 overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 w-full relative group">
+              <div className="relative h-100 w-full overflow-hidden rounded-[2.5rem] shadow-2xl border-8 border-slate-50">
+                {imagensCarrossel.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Slide ${index}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                      index === slideAtual ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                ))}
+
+                <div className="absolute inset-0 bg-linear-to-t from-slate-900/40 to-transparent"></div>
+
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                  {imagensCarrossel.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 rounded-full transition-all ${
+                        index === slideAtual
+                          ? "w-8 bg-sky-500"
+                          : "w-2 bg-white/50"
+                      }`}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 text-center lg:text-left space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 rounded-full font-bold text-sm uppercase tracking-wider">
+                <Headset size={18} />
+                Atendimento Humanizado
+              </div>
+
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+                Precisa de suporte especializado? <br />
+                <span className="text-sky-500">
+                  Estamos prontos para ajudar.
+                </span>
+              </h2>
+
+              <p className="text-slate-500 text-lg leading-relaxed max-w-xl">
+                Nossa equipe de consultores está disponível para tirar suas
+                dúvidas, ajudar com agendamentos e garantir que você tenha a
+                melhor experiência em nossa plataforma.
+              </p>
+
+              <div className="pt-4">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-3 bg-slate-900 text-white px-12 py-5 rounded-full font-bold text-lg hover:bg-sky-600 hover:-translate-y-1 transition-all shadow-xl shadow-slate-200 active:scale-95 group"
+                >
+                  Solicitar atendimento
+                  <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-slate-50 py-24 px-6">
         <div className="container mx-auto">
           <div className="text-center mb-20 space-y-4">
@@ -115,6 +241,154 @@ function Home() {
           </div>
         </div>
       </section>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 md:p-12 animate-in zoom-in-95 duration-300">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={24} />
+            </button>
+
+            {!enviado ? (
+              <>
+                <div className="mb-8">
+                  <h3 className="text-2xl font-black text-slate-900 mb-2">
+                    Solicitar Atendimento
+                  </h3>
+                  <p className="text-slate-500">
+                    Preencha os dados abaixo e nossa equipe entrará em contato
+                    em breve.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
+                      Qual seu nome completo?
+                    </label>
+                    <input
+                      {...register("nome", {
+                        required: "O nome é obrigatório",
+                      })}
+                      className={`w-full px-5 py-4 bg-slate-50 border ${errors.nome ? "border-red-500" : "border-slate-200"} rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all`}
+                      placeholder="Ex: João Silva"
+                    />
+                    {errors.nome && (
+                      <span className="text-red-500 text-xs mt-1">
+                        {errors.nome.message as string}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
+                      Nome do seu responsável (se houver)
+                    </label>
+                    <input
+                      {...register("responsavel")}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                      placeholder="Nome do pai, mãe ou tutor"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">
+                      Necessita de atendimento em Libras?
+                    </label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="radio"
+                          value="Sim"
+                          {...register("libras")}
+                          className="w-5 h-5 text-sky-500 focus:ring-sky-500"
+                        />
+                        <span className="text-slate-600 group-hover:text-sky-600 transition-colors">
+                          Sim
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="radio"
+                          value="Não"
+                          {...register("libras")}
+                          className="w-5 h-5 text-sky-500 focus:ring-sky-500"
+                          defaultChecked
+                        />
+                        <span className="text-slate-600 group-hover:text-sky-600 transition-colors">
+                          Não
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
+                        Telefone
+                      </label>
+                      <input
+                        {...register("telefone", {
+                          required: "Telefone obrigatório",
+                        })}
+                        className={`w-full px-5 py-4 bg-slate-50 border ${errors.telefone ? "border-red-500" : ("border-slate-200" as string)} rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all`}
+                        placeholder="(11) 99999-9999"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
+                        Melhor E-mail
+                      </label>
+                      <input
+                        {...register("email", {
+                          required: "E-mail obrigatório",
+                          pattern: {
+                            value: /^\S+@\S+$/i,
+                            message: "E-mail inválido",
+                          },
+                        })}
+                        className={`w-full px-5 py-4 bg-slate-50 border ${errors.email ? "border-red-500" : ("border-slate-200" as string)} rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all`}
+                        placeholder="seu@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-sky-500 text-white py-5 rounded-2xl font-bold text-lg hover:bg-sky-600 transition-all shadow-lg shadow-sky-200 active:scale-[0.98] mt-4"
+                  >
+                    Enviar Solicitação
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-12 space-y-6 animate-in zoom-in-95">
+                <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle2 size={48} />
+                </div>
+                <h3 className="text-3xl font-black text-slate-900">
+                  Solicitação Enviada!
+                </h3>
+                <p className="text-slate-500">
+                  Obrigado,{" "}
+                  <span className="font-bold text-slate-900">
+                    {nomeCliente}
+                  </span>
+                  . Em breve nossa equipe entrará em contato pelo telefone
+                  informado.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
