@@ -8,9 +8,7 @@ import {
   EarOff,
   History,
   LayoutDashboard,
-  HandCoins,
   MoreVertical,
-  FileText,
   Download,
   Stethoscope,
   X,
@@ -18,6 +16,8 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
+  UserX,
+  Trash2,
 } from "lucide-react";
 
 const EstatisticaCard = ({ titulo, valor, icone: Icon, cor }: any) => (
@@ -101,6 +101,7 @@ const DashboardAtendente = () => {
       situacao: "AN",
     },
   ];
+
   const aprovados = [
     {
       id: 101,
@@ -120,63 +121,67 @@ const DashboardAtendente = () => {
     },
   ];
 
-  const doacoes = [
+  const [listaReprovados, setListaReprovados] = useState([
     {
-      id: 1,
-      doador: "Empresa XPTO",
-      valor: "R$ 5.000,00",
-      data: "12/05/2026",
-      tipo: "Única",
+      id: 203,
+      nome: "Thiago Lima",
+      dt_nascimento: "2009-11-05",
+      libras: "N",
+      telefone: "(11) 98888-7777",
+      email: "thiago@email.com",
+      situacao: "RP",
+      motivo: "Fora da faixa etária",
     },
     {
-      id: 2,
-      doador: "Carlos Silva",
-      valor: "R$ 150,00",
-      data: "10/05/2026",
-      tipo: "Mensal",
+      id: 202,
+      nome: "Camila Silva",
+      dt_nascimento: "2012-04-12",
+      libras: "S",
+      telefone: "(11) 97777-6666",
+      email: "camila.silva@email.com",
+      situacao: "RP",
+      motivo: "Não compareceu na triagem",
     },
-  ];
+    {
+      id: 204,
+      nome: "Francisco Alves",
+      dt_nascimento: "2001-10-06",
+      libras: "N",
+      telefone: "(11) 98888-7777",
+      email: "chico@email.com",
+      situacao: "RP",
+      motivo: "Tratamento não oferecido pela ONG",
+    }
+  ]);
+
+  const handleExcluirReprovado = (id: number, nome: string) => {
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja excluir permanentemente o registro de ${nome}?`
+    );
+
+    if (confirmacao) {
+      const novaLista = listaReprovados.filter((item) => item.id !== id);
+      setListaReprovados(novaLista);
+    }
+  };
 
   const menuItems = [
     { id: "dashboard", icon: LayoutDashboard, label: "Visão Geral" },
     { id: "novos", icon: UserPlus, label: "Novos Solicitantes" },
     { id: "triagem", icon: CalendarClock, label: "Fila de Triagem" },
     { id: "beneficiarios", icon: Users, label: "Beneficiários Ativos" },
-    { id: "doacoes", icon: HandCoins, label: "Gestão de Doações" },
+    { id: "reprovados", icon: UserX, label: "Reprovados" },
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cadastroSucesso, setCadastroSucesso] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-  } = useForm();
+  const { register, handleSubmit, setValue, reset } = useForm();
 
   const proximasTriagens = [
-    {
-      id: "TR-101",
-      data: "15/05/2026",
-      hora: "08:00 as 12:00",
-      local: "Posto Central",
-      vagas: 5,
-    },
-    {
-      id: "TR-102",
-      data: "18/05/2026",
-      hora: "13:00 as 17:00",
-      local: "Posto Central",
-      vagas: 2,
-    },
-    {
-      id: "TR-103",
-      data: "22/05/2026",
-      hora: "08:00 as 12:00",
-      local: "Posto Norte",
-      vagas: 10,
-    },
+    { id: "TR-101", data: "15/05/2026", hora: "08:00 as 12:00", local: "Posto Central", vagas: 5 },
+    { id: "TR-102", data: "18/05/2026", hora: "13:00 as 17:00", local: "Posto Central", vagas: 2 },
+    { id: "TR-103", data: "22/05/2026", hora: "08:00 as 12:00", local: "Posto Norte", vagas: 10 },
   ];
 
   const buscarCEP = async (e: any) => {
@@ -189,7 +194,6 @@ const DashboardAtendente = () => {
           setValue("rua", data.logradouro);
           setValue("bairro", data.bairro);
           setValue("cidade", data.localidade);
-
           document.getElementById("numeroEndereco")?.focus();
         }
       } catch (error) {
@@ -302,10 +306,10 @@ const DashboardAtendente = () => {
                   cor="bg-green-100 text-green-600"
                 />
                 <EstatisticaCard
-                  titulo="Doações do Mês"
-                  valor="R$ 12k"
-                  icone={HandCoins}
-                  cor="bg-purple-100 text-purple-600"
+                  titulo="Reprovados Hoje"
+                  valor={listaReprovados.length}
+                  icone={UserX}
+                  cor="bg-red-100 text-red-600"
                 />
               </div>
 
@@ -387,48 +391,93 @@ const DashboardAtendente = () => {
             </div>
           )}
 
-          {secaoAtiva === "doacoes" && (
+          {secaoAtiva === "reprovados" && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-black text-slate-900">
-                  Relatório de Doações
-                </h2>
-                <button className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-slate-800">
-                  <FileText size={16} /> Gerar Relatório PDF
-                </button>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                      <th className="p-4 font-bold">Doador</th>
-                      <th className="p-4 font-bold">Valor</th>
-                      <th className="p-4 font-bold">Periodicidade</th>
-                      <th className="p-4 font-bold">Data</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-sm">
-                    {doacoes.map((d) => (
-                      <tr key={d.id}>
-                        <td className="p-4 font-medium text-slate-900">
-                          {d.doador}
-                        </td>
-                        <td className="p-4 font-bold text-green-600">
-                          {d.valor}
-                        </td>
-                        <td className="p-4 text-slate-500">{d.tipo}</td>
-                        <td className="p-4 text-slate-500">{d.data}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <h2 className="text-2xl font-black text-slate-900">
+                Solicitações Reprovadas
+              </h2>
+              
+              {listaReprovados.length === 0 ? (
+                <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center">
+                  <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Nenhum reprovado na lista</h3>
+                  <p className="text-slate-500 mt-1">A lista de registros arquivados está vazia no momento.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {listaReprovados.map((s) => (
+                    <div
+                      key={s.id}
+                      className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between transition-all"
+                    >
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0">
+                            <UserX size={20} />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-lg leading-tight">
+                              {s.nome}
+                            </h4>
+                            <p className="text-xs text-slate-500 mt-1">
+                              Nasc: {s.dt_nascimento}
+                            </p>
+                          </div>
+                        </div>
+
+                        {s.libras === "S" && (
+                          <span className="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shrink-0">
+                            <EarOff size={14} /> LIBRAS
+                          </span>
+                        )}
+                      </div>
+
+                      {s.libras === "S" ? (
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-6 flex flex-col gap-1">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                            E-mail de Contato
+                          </span>
+                          <span className="text-sm font-medium text-slate-700">
+                            {s.email}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-6 flex flex-col gap-1">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                            Telefone de Contato
+                          </span>
+                          <span className="text-sm font-medium text-slate-700">
+                            {s.telefone}
+                          </span>
+                        </div>
+                      )}
+
+                      
+                      <div className="flex gap-3">
+                        <div className="flex-1 bg-red-50 text-red-600 font-bold py-3 px-4 rounded-xl border border-red-100 flex items-center text-xs tracking-widest uppercase">
+                          <span className="truncate">Motivo: {s.motivo}</span>
+                        </div>
+                        
+                        <button
+                          onClick={() => handleExcluirReprovado(s.id, s.nome)}
+                          title="Excluir Permanentemente"
+                          className="w-12 h-12 shrink-0 bg-white text-slate-400 border border-slate-200 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all flex items-center justify-center active:scale-95 shadow-sm"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-6xl max-h-[95vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95">
               <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
                 <div>
@@ -436,8 +485,7 @@ const DashboardAtendente = () => {
                     Finalizar Cadastro - Pré-Beneficiário
                   </h2>
                   <p className="text-sm text-slate-500 font-medium">
-                    Preencha os dados e agende a triagem com o paciente na
-                    linha.
+                    Preencha os dados e agende a triagem com o paciente na linha.
                   </p>
                 </div>
                 <button
@@ -450,7 +498,7 @@ const DashboardAtendente = () => {
 
               {!cadastroSucesso ? (
                 <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-                  <div className="flex-[2] p-8 overflow-y-auto border-r border-slate-100">
+                  <div className="flex-2 p-8 overflow-y-auto border-r border-slate-100">
                     <form
                       id="formCadastro"
                       onSubmit={handleSubmit(onSubmitCadastro)}
@@ -476,9 +524,7 @@ const DashboardAtendente = () => {
                             </label>
                             <input
                               type="date"
-                              {...register("dataNascimento", {
-                                required: true,
-                              })}
+                              {...register("dataNascimento", { required: true })}
                               className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500"
                             />
                           </div>
@@ -586,9 +632,7 @@ const DashboardAtendente = () => {
                           </label>
                           <textarea
                             placeholder="Descreva brevemente os sintomas informados..."
-                            {...register("problemaDentario", {
-                              required: true,
-                            })}
+                            {...register("problemaDentario", { required: true })}
                             className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 resize-none"
                           ></textarea>
                         </div>
@@ -617,8 +661,7 @@ const DashboardAtendente = () => {
 
                     <p className="text-sm text-slate-500 mb-6">
                       Informe estas datas ao paciente. <br />
-                      <strong>Dica:</strong> Clique em um card para
-                      auto-preencher o ID no formulário.
+                      <strong>Dica:</strong> Clique em um card para auto-preencher o ID no formulário.
                     </p>
 
                     <div className="space-y-4">

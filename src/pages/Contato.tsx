@@ -11,6 +11,7 @@ type ContatoFormData = {
 
 const Contato = () => {
   const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
   const {
     register,
@@ -19,14 +20,40 @@ const Contato = () => {
     formState: { errors },
   } = useForm<ContatoFormData>();
 
-  const onSubmit = (data: ContatoFormData) => {
-    console.log("Dados validados com UseForm:", data);
-    setEnviado(true);
+  const onSubmit = async (data: ContatoFormData) => {
+    setEnviando(true);
 
-    setTimeout(() => {
-      setEnviado(false);
-      reset();
-    }, 4000);
+    try {
+      await fetch("https://formsubmit.co/ajax/pedrobegali27@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          _subject: `Novo Contato pelo Site - ${data.nome}`,
+          _template: "table",
+          _captcha: "false",
+          Nome: data.nome,
+          Email: data.email,
+          Telefone: data.tel,
+          Mensagem: data.mensagem,
+        }),
+      });
+
+      setEnviado(true);
+      
+      setTimeout(() => {
+        setEnviado(false);
+        reset();
+      }, 4000);
+
+    } catch (error) {
+      console.error("Erro ao enviar contato:", error);
+      alert("Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -192,10 +219,19 @@ const Contato = () => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+                disabled={enviando}
+                className={`w-full text-white font-bold py-4 rounded-xl active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 ${
+                  enviando ? "bg-blue-400 cursor-not-allowed shadow-none" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                }`}
               >
-                <Send size={18} />
-                Enviar Mensagem
+                {enviando ? (
+                  "Enviando Mensagem..."
+                ) : (
+                  <>
+                    <Send size={18} />
+                    Enviar Mensagem
+                  </>
+                )}
               </button>
             </form>
           </div>

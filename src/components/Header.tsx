@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { User, Menu, X } from "lucide-react";
+import { User, Menu, X, Heart } from "lucide-react";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,7 +40,17 @@ function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
+          <a
+            href="https://paybox.doare.org/paybox?payboxId=83fed202-df0f-4665-9c74-688a834028d4"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-2 bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold hover:bg-rose-600 hover:shadow-lg hover:shadow-rose-200 active:scale-95 transition-all"
+          >
+            <Heart size={18} className="fill-white/20" />
+            <span className="hidden lg:inline">Quero doar!</span>
+          </a>
+
           <Link
             className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 hover:shadow-lg active:scale-95 transition-all"
             to="/login"
@@ -77,14 +87,28 @@ function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold active:scale-95 transition-all"
-            to="/login"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <User size={20} />
-            Conecte-se
-          </Link>
+          
+          <div className="flex flex-col gap-3 pt-2">
+            <a
+              href="https://paybox.doare.org/paybox?payboxId=83fed202-df0f-4665-9c74-688a834028d4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-rose-500 text-white px-6 py-4 rounded-2xl font-bold active:scale-95 transition-all"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Heart size={20} className="fill-white/20" />
+              Quero doar!
+            </a>
+
+            <Link
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold active:scale-95 transition-all"
+              to="/login"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <User size={20} />
+              Conecte-se
+            </Link>
+          </div>
         </nav>
       </div>
     </header>

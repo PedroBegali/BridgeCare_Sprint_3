@@ -128,10 +128,7 @@ const DashboardDentista = () => {
 
     const formData = new FormData(e.target);
     // Configurações ocultas do FormSubmit
-    formData.append(
-      "_subject",
-      "Nova Solicitação de Materiais - Dr. Augusto Lopes",
-    );
+    formData.append("_subject", "Nova Solicitação de Materiais na Plataforma");
     formData.append("_captcha", "false");
     formData.append("_template", "table");
 
@@ -205,16 +202,22 @@ const DashboardDentista = () => {
 
           <div className="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200 ml-auto">
             <span
-              className={`text-xs font-black uppercase tracking-widest ${estaAtivo ? "text-green-600" : "text-slate-400"}`}
+              className={`text-xs font-black uppercase tracking-widest ${
+                estaAtivo ? "text-green-600" : "text-slate-400"
+              }`}
             >
               {estaAtivo ? "Recebendo Pacientes" : "Ausente"}
             </span>
             <button
               onClick={() => setEstaAtivo(!estaAtivo)}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${estaAtivo ? "bg-green-500" : "bg-slate-300"}`}
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
+                estaAtivo ? "bg-green-500" : "bg-slate-300"
+              }`}
             >
               <div
-                className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform ${estaAtivo ? "translate-x-6" : "translate-x-0"}`}
+                className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform ${
+                  estaAtivo ? "translate-x-6" : "translate-x-0"
+                }`}
               ></div>
             </button>
           </div>
@@ -368,46 +371,52 @@ const DashboardDentista = () => {
                     <h2 className="text-3xl font-black">Solicitar Materiais</h2>
                   </div>
                   <p className="text-blue-100 text-sm mb-8 max-w-lg leading-relaxed">
-                    Preencha os insumos odontológicos que estão em falta na sua
-                    unidade. O pedido será enviado diretamente para a central de
-                    suprimentos da ONG (pedrobegali27@gmail.com).
+                    Informe o local de entrega e descreva os insumos odontológicos necessários. O pedido será enviado diretamente para a central de suprimentos da ONG (pedrobegali27@gmail.com).
                   </p>
 
                   {!materialEnviado ? (
-                    <form onSubmit={onSubmitMaterial} className="space-y-4">
-                      <input
-                        type="hidden"
-                        name="Dentista"
-                        value="Dr. Augusto Lopes"
-                      />
-                      <input
-                        type="hidden"
-                        name="Unidade"
-                        value="Unidade Central BridgeCare"
-                      />
-
-                      <div className="bg-white/10 p-1 rounded-2xl flex flex-col md:flex-row gap-2 backdrop-blur-md border border-white/20">
+                    <form onSubmit={onSubmitMaterial} className="space-y-5">
+                      
+                      
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-blue-200 uppercase tracking-wider ml-1">
+                          Local para Entrega
+                        </label>
                         <input
                           type="text"
+                          name="Local de Entrega"
+                          required
+                          placeholder="Ex: Unidade Norte, Clínica Paulista..."
+                          className="w-full px-5 py-4 rounded-xl bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-white/50 placeholder:text-blue-300 backdrop-blur-md"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-blue-200 uppercase tracking-wider ml-1">
+                          Descrição dos Materiais
+                        </label>
+                        <textarea
                           name="Materiais Solicitados"
                           required
-                          placeholder="Ex: 2 caixas de luvas M, 5 resinas Z350..."
-                          className="flex-1 px-5 py-4 rounded-xl bg-transparent border-none text-white outline-none placeholder:text-blue-200"
-                        />
-                        <button
-                          type="submit"
-                          disabled={enviando}
-                          className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-black transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                          {enviando ? (
-                            "Enviando..."
-                          ) : (
-                            <>
-                              <Send size={18} /> Enviar Pedido
-                            </>
-                          )}
-                        </button>
+                          rows={3}
+                          placeholder="Ex: 2 caixas de luvas tamanho M, 5 resinas Z350, 1 pacote de sugadores..."
+                          className="w-full px-5 py-4 rounded-xl bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-white/50 placeholder:text-blue-300 backdrop-blur-md resize-none"
+                        ></textarea>
                       </div>
+
+                      <button
+                        type="submit"
+                        disabled={enviando}
+                        className="w-full bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-black transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2"
+                      >
+                        {enviando ? (
+                          "Enviando Pedido..."
+                        ) : (
+                          <>
+                            <Send size={18} /> Enviar Pedido
+                          </>
+                        )}
+                      </button>
                     </form>
                   ) : (
                     <div className="bg-green-500/20 border border-green-400/30 p-6 rounded-2xl backdrop-blur-md flex items-center gap-4 animate-in fade-in">
@@ -417,8 +426,7 @@ const DashboardDentista = () => {
                           Pedido Enviado com Sucesso!
                         </h4>
                         <p className="text-green-100 text-sm">
-                          A central de suprimentos receberá seu e-mail em
-                          instantes.
+                          A central receberá seu e-mail em instantes.
                         </p>
                       </div>
                     </div>
