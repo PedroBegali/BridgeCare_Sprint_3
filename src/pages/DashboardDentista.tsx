@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Calendar,
@@ -13,7 +13,11 @@ import {
   MapPin,
   Stethoscope,
   Send,
+  MessageSquarePlus,
+  CalendarPlus,
 } from "lucide-react";
+
+const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
 const EstatisticaCard = ({ titulo, valor, icone: Icon, cor }: any) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -27,33 +31,104 @@ const EstatisticaCard = ({ titulo, valor, icone: Icon, cor }: any) => (
   </div>
 );
 
-const CardAgenda = ({ paciente, data, hora, local }: any) => (
-  <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group">
-    <div className="flex items-center gap-4">
-      <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0">
-        <User size={20} />
+const CardAgenda = ({
+  consulta,
+  pacienteNome,
+  data,
+  hora,
+  onRecarregar,
+}: any) => {
+  const [recomendacao, setRecomendacao] = useState(
+    consulta.dsRecomendacao || "",
+  );
+  const [enviando, setEnviando] = useState(false);
+
+  const enviarRecomendacao = async () => {
+    if (!recomendacao.trim()) return;
+    setEnviando(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/consultas/${consulta.idConsulta}/recomendacao?texto=${encodeURIComponent(recomendacao)}`,
+        {
+          method: "PATCH",
+        },
+      );
+      if (res.ok) {
+        onRecarregar();
+      } else {
+        alert("Erro ao enviar recomendação.");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const enderecoFormatado = consulta.nmLogradouro
+    ? `${consulta.nmLogradouro}, ${consulta.nrLogradouro} - ${consulta.nmBairro}`
+    : "Endereço não informado";
+
+  return (
+    <div className="flex flex-col p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0">
+            <User size={20} />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 text-lg leading-tight">
+              {pacienteNome}
+            </h4>
+            <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+              <MapPin size={12} className="text-red-400" /> {enderecoFormatado}
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 md:mt-0 text-left md:text-right bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 shrink-0">
+          <p className="text-sm font-black text-blue-600">{data}</p>
+          <p className="text-xs text-slate-500 font-bold flex items-center justify-end gap-1">
+            <Clock size={12} /> {hora}
+          </p>
+        </div>
       </div>
-      <div>
-        <h4 className="font-bold text-slate-900 text-lg leading-tight">
-          {paciente}
-        </h4>
-        <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-          <MapPin size={12} /> {local}
-        </p>
+
+      <div className="pt-3 border-t border-slate-100 flex gap-2 items-center">
+        <input
+          type="text"
+          value={recomendacao}
+          onChange={(e) => setRecomendacao(e.target.value)}
+          placeholder="Escreva uma recomendação (ex: Escovar os dentes)"
+          className="flex-1 bg-slate-50 text-xs p-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400"
+        />
+        <button
+          onClick={enviarRecomendacao}
+          disabled={!recomendacao || enviando}
+          className="bg-blue-100 text-blue-700 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50"
+          title="Salvar Recomendação"
+        >
+          <MessageSquarePlus size={16} />
+        </button>
       </div>
     </div>
-    <div className="mt-4 md:mt-0 text-left md:text-right bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
-      <p className="text-sm font-black text-blue-600">{data}</p>
-      <p className="text-xs text-slate-500 font-bold flex items-center justify-end gap-1">
-        <Clock size={12} /> {hora}
-      </p>
-    </div>
-  </div>
-);
+  );
+};
 
 const DashboardDentista = () => {
+  const idDentistaLogado = Number(localStorage.getItem("userId")) || 1;
+
   const [secaoAtiva, setSecaoAtiva] = useState("dashboard");
   const [estaAtivo, setEstaAtivo] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  const [dadosDentistaLogado, setDadosDentistaLogado] = useState<any>(null);
+
+  const [consultasPendentes, setConsultasPendentes] = useState<any[]>([]);
+  const [agenda, setAgenda] = useState<any[]>([]);
+  const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
+
+  const [consultasAtendidas, setConsultasAtendidas] = useState(0);
+  const [enderecosConsultorios, setEnderecosConsultorios] = useState<any[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<any>(null);
@@ -62,45 +137,128 @@ const DashboardDentista = () => {
   const [materialEnviado, setMaterialEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const formNovaConsulta = useForm();
 
-  const consultasPendentes = [
-    {
-      id_consulta: 1,
-      paciente: "Enzo Oliveira",
-      dt_consulta: "28/03/2026",
-      local: "Unidade Central",
-    },
-    {
-      id_consulta: 2,
-      paciente: "Maria Eduarda",
-      dt_consulta: "30/03/2026",
-      local: "Clínica Parceira Sul",
-    },
-  ];
+  const fetchSeguro = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.error(`Falha ao buscar ${url}:`, err);
+      return null;
+    }
+  };
 
-  const agenda = [
-    {
-      id_consulta: 101,
-      paciente: "João Silva",
-      data: "02/04/2026",
-      hora: "09:00",
-      local: "Unidade Central",
-    },
-    {
-      id_consulta: 102,
-      paciente: "Ana Clara",
-      data: "03/04/2026",
-      hora: "14:30",
-      local: "Clínica Parceira Norte",
-    },
-  ];
+  const carregarDados = async () => {
+    setLoading(true);
+    try {
+      const [
+        dadosProximas,
+        dadosPendentes,
+        dadosBeneficiarios,
+        dadosMedicos,
+        todasConsultas,
+        todosEnderecos,
+      ] = await Promise.all([
+        fetchSeguro(
+          `${API_BASE_URL}/consultas/dentista/${idDentistaLogado}/proximas`,
+        ),
+        fetchSeguro(
+          `${API_BASE_URL}/consultas/dentista/${idDentistaLogado}/pendentes`,
+        ),
+        fetchSeguro(`${API_BASE_URL}/beneficiarios`),
+        fetchSeguro(`${API_BASE_URL}/dentistas/${idDentistaLogado}`),
+        fetchSeguro(`${API_BASE_URL}/consultas`),
+        fetchSeguro(`${API_BASE_URL}/enderecos`),
+      ]);
+
+      setAgenda(dadosProximas || []);
+      setConsultasPendentes(dadosPendentes || []);
+      setBeneficiarios(dadosBeneficiarios || []);
+
+      if (dadosMedicos) {
+        setDadosDentistaLogado(dadosMedicos);
+        setEstaAtivo(dadosMedicos.stDentista === "A");
+      }
+
+      if (Array.isArray(todasConsultas)) {
+        const atendidas = todasConsultas.filter(
+          (c) => c.idDentista === idDentistaLogado && c.dsProntuario !== null,
+        );
+        setConsultasAtendidas(atendidas.length);
+      }
+
+      if (Array.isArray(todosEnderecos)) {
+        setEnderecosConsultorios(
+          todosEnderecos.filter((e) => e.nmLocal === "C"),
+        );
+      }
+    } catch (error) {
+      console.error("Erro inesperado:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  const handleToggleStatus = async () => {
+    const novoStatus = estaAtivo ? "I" : "A";
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/dentistas/${idDentistaLogado}/status?status=${novoStatus}`,
+        {
+          method: "PATCH",
+        },
+      );
+      if (res.ok) {
+        setEstaAtivo(!estaAtivo);
+      } else {
+        alert("Falha ao atualizar o status na base de dados.");
+      }
+    } catch (error) {
+      console.error("Erro ao mudar status:", error);
+    }
+  };
+
+  const getNomeBeneficiario = (idBeneficiario: number) => {
+    const paciente = beneficiarios.find(
+      (b) => b.idBeneficiario === idBeneficiario,
+    );
+    return paciente
+      ? paciente.nmPreBeneficiario
+      : `Paciente #${idBeneficiario}`;
+  };
+
+  const formatarData = (d: any) => {
+    if (!d) return "Data indefinida";
+    if (Array.isArray(d))
+      return `${String(d[2]).padStart(2, "0")}/${String(d[1]).padStart(2, "0")}/${d[0]}`;
+    return d;
+  };
+
+  const formatarHora = (h: any) => {
+    if (!h) return "";
+    if (Array.isArray(h))
+      return `${String(h[0]).padStart(2, "0")}:${String(h[1]).padStart(2, "0")}`;
+    return h;
+  };
 
   const menuItems = [
     { id: "dashboard", icon: LayoutDashboard, label: "Visão Geral" },
     { id: "agenda", icon: Calendar, label: "Minha Agenda" },
+    { id: "nova-consulta", icon: CalendarPlus, label: "Agendar Consulta" },
     { id: "prontuarios", icon: ClipboardList, label: "Prontuários Pendentes" },
-    { id: "materiais", icon: Package, label: "Solicitar Materiais" },
+    { id: "materiais", icon: Package, label: "Solicitar Materials" },
   ];
 
   const abrirModalProntuario = (consulta: any) => {
@@ -109,25 +267,67 @@ const DashboardDentista = () => {
     setIsModalOpen(true);
   };
 
-  const onSubmitProntuario = (data: any) => {
-    console.log("Prontuário Salvo na T_BC_CONSULTA:", {
-      id_consulta: consultaSelecionada.id_consulta,
-      ds_prontuario: data.ds_prontuario,
-    });
-    setProntuarioSucesso(true);
-    setTimeout(() => {
-      setIsModalOpen(false);
-      setProntuarioSucesso(false);
-    }, 2500);
+  const onSubmitProntuario = async (data: any) => {
+    try {
+      const idConsulta = consultaSelecionada.idConsulta;
+      const textoEncoded = encodeURIComponent(data.ds_prontuario);
+
+      const res = await fetch(
+        `${API_BASE_URL}/consultas/${idConsulta}/prontuario?texto=${textoEncoded}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      if (res.ok) {
+        setProntuarioSucesso(true);
+        carregarDados();
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setProntuarioSucesso(false);
+        }, 2500);
+      } else {
+        alert("Erro ao salvar prontuário.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // Função Real de Envio de E-mail via FormSubmit (sem back-end)
+  const onSubmitNovaConsulta = async (data: any) => {
+    try {
+      const payload = {
+        dtConsulta: data.dataConsulta,
+        hrConsulta: data.horaConsulta + ":00",
+        idBeneficiario: Number(data.idBeneficiario),
+        idDentista: idDentistaLogado,
+        idEndereco: Number(data.idEndereco),
+      };
+
+      const res = await fetch(`${API_BASE_URL}/consultas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        alert("Consulta agendada com sucesso!");
+        formNovaConsulta.reset();
+        carregarDados();
+        setSecaoAtiva("agenda");
+      } else {
+        alert("Erro ao agendar consulta. Verifique os dados.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const onSubmitMaterial = async (e: any) => {
     e.preventDefault();
     setEnviando(true);
-
     const formData = new FormData(e.target);
-    // Configurações ocultas do FormSubmit
     formData.append("_subject", "Nova Solicitação de Materiais na Plataforma");
     formData.append("_captcha", "false");
     formData.append("_template", "table");
@@ -141,25 +341,38 @@ const DashboardDentista = () => {
       e.target.reset();
       setTimeout(() => setMaterialEnviado(false), 4000);
     } catch (error) {
-      console.error("Erro ao enviar email", error);
+      console.error(error);
     } finally {
       setEnviando(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-bold">
+            Carregando dados da clínica...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       <aside className="w-full md:w-72 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-100">
           <h1 className="text-2xl font-black text-slate-600 tracking-tight">
-            Dashboard
+            BridgeCare
           </h1>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
             Dentista
           </p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -182,8 +395,17 @@ const DashboardDentista = () => {
               <Stethoscope size={20} />
             </div>
             <div className="text-left">
-              <p className="text-sm font-bold text-slate-900">Dr. Augusto L.</p>
-              <p className="text-xs text-slate-500">CRO: 12345-SP</p>
+              <p className="text-sm font-bold text-slate-900 truncate max-w-40">
+                {dadosDentistaLogado
+                  ? dadosDentistaLogado.nmDentista
+                  : "Carregando..."}
+              </p>
+              <p className="text-xs text-slate-500">
+                CRO:{" "}
+                {dadosDentistaLogado
+                  ? dadosDentistaLogado.croDentista
+                  : "00000"}
+              </p>
             </div>
           </div>
         </div>
@@ -202,22 +424,16 @@ const DashboardDentista = () => {
 
           <div className="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200 ml-auto">
             <span
-              className={`text-xs font-black uppercase tracking-widest ${
-                estaAtivo ? "text-green-600" : "text-slate-400"
-              }`}
+              className={`text-xs font-black uppercase tracking-widest ${estaAtivo ? "text-green-600" : "text-slate-400"}`}
             >
               {estaAtivo ? "Recebendo Pacientes" : "Ausente"}
             </span>
             <button
-              onClick={() => setEstaAtivo(!estaAtivo)}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
-                estaAtivo ? "bg-green-500" : "bg-slate-300"
-              }`}
+              onClick={handleToggleStatus}
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${estaAtivo ? "bg-green-500" : "bg-slate-300"}`}
             >
               <div
-                className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform ${
-                  estaAtivo ? "translate-x-6" : "translate-x-0"
-                }`}
+                className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform ${estaAtivo ? "translate-x-6" : "translate-x-0"}`}
               ></div>
             </button>
           </div>
@@ -228,7 +444,11 @@ const DashboardDentista = () => {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div>
                 <h2 className="text-3xl font-black text-slate-900">
-                  Olá, Dr. Augusto!
+                  Olá, Dr(a).{" "}
+                  {dadosDentistaLogado
+                    ? dadosDentistaLogado.nmDentista.split(" ")[0]
+                    : ""}
+                  !
                 </h2>
                 <p className="text-slate-500 mt-1">
                   Aqui está o resumo da sua clínica hoje.
@@ -237,8 +457,8 @@ const DashboardDentista = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <EstatisticaCard
-                  titulo="Consultas Hoje"
-                  valor="8"
+                  titulo="Próximas Consultas"
+                  valor={agenda.length}
                   icone={Calendar}
                   cor="bg-blue-100 text-blue-600"
                 />
@@ -250,7 +470,7 @@ const DashboardDentista = () => {
                 />
                 <EstatisticaCard
                   titulo="Pacientes Atendidos"
-                  valor="142"
+                  valor={consultasAtendidas}
                   icone={User}
                   cor="bg-green-100 text-green-600"
                 />
@@ -262,9 +482,19 @@ const DashboardDentista = () => {
                     Próximos Pacientes
                   </h3>
                   <div className="space-y-3">
-                    {agenda.map((item) => (
-                      <CardAgenda key={item.id_consulta} {...item} />
+                    {agenda.slice(0, 4).map((item) => (
+                      <CardAgenda
+                        key={item.idConsulta}
+                        consulta={item}
+                        pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                        data={formatarData(item.dtConsulta)}
+                        hora={formatarHora(item.hrConsulta)}
+                        onRecarregar={carregarDados}
+                      />
                     ))}
+                    {agenda.length === 0 && (
+                      <p className="text-sm text-slate-500">Agenda livre.</p>
+                    )}
                   </div>
                 </div>
 
@@ -278,7 +508,7 @@ const DashboardDentista = () => {
                   <div className="space-y-3">
                     {consultasPendentes.map((pend) => (
                       <div
-                        key={pend.id_consulta}
+                        key={pend.idConsulta}
                         className="p-4 rounded-xl bg-orange-50 border border-orange-100 flex justify-between items-center"
                       >
                         <div>
@@ -286,8 +516,11 @@ const DashboardDentista = () => {
                             Falta Prontuário
                           </p>
                           <h4 className="font-bold text-slate-900 text-sm">
-                            {pend.paciente}
+                            {getNomeBeneficiario(pend.idBeneficiario)}
                           </h4>
+                          <p className="text-xs text-orange-400 mt-1">
+                            Data: {formatarData(pend.dtConsulta)}
+                          </p>
                         </div>
                         <button
                           onClick={() => {
@@ -300,6 +533,11 @@ const DashboardDentista = () => {
                         </button>
                       </div>
                     ))}
+                    {consultasPendentes.length === 0 && (
+                      <p className="text-sm text-slate-500">
+                        Nenhuma pendência.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -313,8 +551,121 @@ const DashboardDentista = () => {
               </h2>
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
                 {agenda.map((item) => (
-                  <CardAgenda key={item.id_consulta} {...item} />
+                  <CardAgenda
+                    key={item.idConsulta}
+                    consulta={item}
+                    pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                    data={formatarData(item.dtConsulta)}
+                    hora={formatarHora(item.hrConsulta)}
+                    onRecarregar={carregarDados}
+                  />
                 ))}
+                {agenda.length === 0 && (
+                  <p className="text-slate-500">
+                    Você não possui consultas futuras agendadas.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {secaoAtiva === "nova-consulta" && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
+              <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                    <CalendarPlus className="text-blue-600" size={28} /> Agendar
+                    Nova Consulta
+                  </h2>
+                  <p className="text-slate-500 mt-1">
+                    Vincule um paciente da ONG à sua agenda marcando data e
+                    endereço.
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={formNovaConsulta.handleSubmit(onSubmitNovaConsulta)}
+                  className="space-y-6"
+                >
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Beneficiário (Paciente)
+                    </label>
+                    <select
+                      {...formNovaConsulta.register("idBeneficiario", {
+                        required: true,
+                      })}
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                    >
+                      <option value="">Selecione um paciente...</option>
+                      {beneficiarios.map((b) => (
+                        <option key={b.idBeneficiario} value={b.idBeneficiario}>
+                          {b.nmPreBeneficiario} (CPF: {b.cpfPreBeneficiario})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                        Data da Consulta
+                      </label>
+                      <input
+                        type="date"
+                        {...formNovaConsulta.register("dataConsulta", {
+                          required: true,
+                        })}
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                        Hora
+                      </label>
+                      <input
+                        type="time"
+                        {...formNovaConsulta.register("horaConsulta", {
+                          required: true,
+                        })}
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Consultório de Atendimento
+                    </label>
+                    <select
+                      {...formNovaConsulta.register("idEndereco", {
+                        required: true,
+                      })}
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                    >
+                      <option value="">Selecione o local da consulta...</option>
+                      {enderecosConsultorios.map((end) => (
+                        <option key={end.idEndereco} value={end.idEndereco}>
+                          {end.nmLogradouro}, {end.nrLogradouro} -{" "}
+                          {end.nmBairro}
+                        </option>
+                      ))}
+                    </select>
+                    {enderecosConsultorios.length === 0 && (
+                      <p className="text-xs text-red-500 mt-1">
+                        Atenção: Não há endereços do tipo Consultório (C) na
+                        base.
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98] mt-4"
+                  >
+                    CONFIRMAR AGENDAMENTO
+                  </button>
+                </form>
               </div>
             </div>
           )}
@@ -331,7 +682,7 @@ const DashboardDentista = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {consultasPendentes.map((pendencia) => (
                   <div
-                    key={pendencia.id_consulta}
+                    key={pendencia.idConsulta}
                     className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between"
                   >
                     <div className="mb-6">
@@ -342,10 +693,10 @@ const DashboardDentista = () => {
                         </span>
                       </div>
                       <h4 className="font-bold text-slate-900 text-xl">
-                        {pendencia.paciente}
+                        {getNomeBeneficiario(pendencia.idBeneficiario)}
                       </h4>
                       <p className="text-sm text-slate-500 mt-1">
-                        Data da Consulta: {pendencia.dt_consulta}
+                        Data da Consulta: {formatarData(pendencia.dtConsulta)}
                       </p>
                     </div>
                     <button
@@ -356,6 +707,17 @@ const DashboardDentista = () => {
                     </button>
                   </div>
                 ))}
+                {consultasPendentes.length === 0 && (
+                  <div className="col-span-2 bg-green-50 p-6 rounded-2xl border border-green-200 text-center">
+                    <CheckCircle2
+                      size={32}
+                      className="mx-auto text-green-500 mb-2"
+                    />
+                    <p className="font-bold text-green-700">
+                      Tudo certo! Você não possui prontuários atrasados.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -371,13 +733,13 @@ const DashboardDentista = () => {
                     <h2 className="text-3xl font-black">Solicitar Materiais</h2>
                   </div>
                   <p className="text-blue-100 text-sm mb-8 max-w-lg leading-relaxed">
-                    Informe o local de entrega e descreva os insumos odontológicos necessários. O pedido será enviado diretamente para a central de suprimentos da ONG (pedrobegali27@gmail.com).
+                    Informe o local de entrega e descreva os insumos
+                    odontológicos necessários. O pedido será enviado diretamente
+                    para a central.
                   </p>
 
                   {!materialEnviado ? (
                     <form onSubmit={onSubmitMaterial} className="space-y-5">
-                      
-                      
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-blue-200 uppercase tracking-wider ml-1">
                           Local para Entrega
@@ -390,7 +752,6 @@ const DashboardDentista = () => {
                           className="w-full px-5 py-4 rounded-xl bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-white/50 placeholder:text-blue-300 backdrop-blur-md"
                         />
                       </div>
-
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-blue-200 uppercase tracking-wider ml-1">
                           Descrição dos Materiais
@@ -399,11 +760,10 @@ const DashboardDentista = () => {
                           name="Materiais Solicitados"
                           required
                           rows={3}
-                          placeholder="Ex: 2 caixas de luvas tamanho M, 5 resinas Z350, 1 pacote de sugadores..."
+                          placeholder="Ex: 2 caixas de luvas tamanho M..."
                           className="w-full px-5 py-4 rounded-xl bg-white/10 border border-white/20 text-white outline-none focus:ring-2 focus:ring-white/50 placeholder:text-blue-300 backdrop-blur-md resize-none"
                         ></textarea>
                       </div>
-
                       <button
                         type="submit"
                         disabled={enviando}
@@ -426,7 +786,7 @@ const DashboardDentista = () => {
                           Pedido Enviado com Sucesso!
                         </h4>
                         <p className="text-green-100 text-sm">
-                          A central receberá seu e-mail em instantes.
+                          A central receberá o seu e-mail em instantes.
                         </p>
                       </div>
                     </div>
@@ -450,7 +810,7 @@ const DashboardDentista = () => {
                   <p className="text-sm text-slate-500">
                     Paciente:{" "}
                     <strong className="text-slate-900">
-                      {consultaSelecionada.paciente}
+                      {getNomeBeneficiario(consultaSelecionada.idBeneficiario)}
                     </strong>
                   </p>
                 </div>
@@ -469,14 +829,23 @@ const DashboardDentista = () => {
                 >
                   <div>
                     <label className="block text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">
-                      Descrição do Prontuário (ds_prontuario)
+                      Descrição do Prontuário
                     </label>
                     <textarea
-                      {...register("ds_prontuario", { required: true })}
+                      {...register("ds_prontuario", {
+                        required: true,
+                        minLength: 10,
+                      })}
                       rows={6}
-                      placeholder="Descreva os procedimentos realizados, evolução do paciente e observações clínicas..."
+                      placeholder="Descreva os procedimentos (Mínimo de 10 caracteres)..."
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 resize-none text-slate-700"
                     ></textarea>
+                    {errors.ds_prontuario && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        O prontuário é obrigatório e deve ter no mínimo 10
+                        caracteres.
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
@@ -504,8 +873,8 @@ const DashboardDentista = () => {
                     Prontuário Salvo!
                   </h3>
                   <p className="text-slate-500">
-                    O histórico clínico do paciente foi atualizado no banco de
-                    dados.
+                    O histórico clínico do paciente foi updated com sucesso na
+                    base de dados.
                   </p>
                 </div>
               )}

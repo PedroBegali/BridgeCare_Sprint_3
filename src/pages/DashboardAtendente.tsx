@@ -524,9 +524,8 @@ const DashboardAtendente = () => {
           )}
         </div>
 
-        {/* MODAL CADASTRAR PRÉ-BENEFICIÁRIO */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-6xl max-h-[95vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95">
               <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
                 <div>
@@ -547,7 +546,7 @@ const DashboardAtendente = () => {
 
               {!cadastroSucesso ? (
                 <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-                  <div className="flex-[2] p-8 overflow-y-auto border-r border-slate-100">
+                  <div className="flex-2 p-8 overflow-y-auto border-r border-slate-100">
                     <form
                       id="formCadastro"
                       onSubmit={handleSubmit(onSubmitCadastro)}
@@ -621,7 +620,6 @@ const DashboardAtendente = () => {
                     </form>
                   </div>
 
-                  {/* COLUNA DA DIREITA: TRIAGENS DISPONÍVEIS COM FORMATADORES DE DATA DO JAVA */}
                   <div className="flex-1 bg-slate-50 p-6 overflow-y-auto">
                     <div className="flex items-center gap-2 mb-6">
                       <CalendarDays className="text-blue-600" />
@@ -636,12 +634,10 @@ const DashboardAtendente = () => {
                       {triagens.map((triagem) => {
                         const id = triagem.idTriagem || triagem.id;
 
-                        // FORMATADOR 1: Desempacota o LocalDate vindo como array do Java [AAAA, MM, DD]
                         const dataFormatada = Array.isArray(triagem.dtTriagem)
                           ? `${String(triagem.dtTriagem[2]).padStart(2, '0')}/${String(triagem.dtTriagem[1]).padStart(2, '0')}/${triagem.dtTriagem[0]}`
                           : (typeof triagem.dtTriagem === 'string' ? triagem.dtTriagem : "Data não informada");
 
-                        // FORMATADOR 2: Desempacota o LocalTime vindo como array do Java [HH, MM]
                         const horaIn = Array.isArray(triagem.hrInicial)
                           ? `${String(triagem.hrInicial[0]).padStart(2, '0')}:${String(triagem.hrInicial[1]).padStart(2, '0')}`
                           : (typeof triagem.hrInicial === 'string' ? triagem.hrInicial : "");
@@ -650,7 +646,6 @@ const DashboardAtendente = () => {
                           ? `${String(triagem.hrFinal[0]).padStart(2, '0')}:${String(triagem.hrFinal[1]).padStart(2, '0')}`
                           : (typeof triagem.hrFinal === 'string' ? triagem.hrFinal : "");
 
-                        // FORMATADOR 3: Concatena o endereço retornado pelo JOIN do TriagemDAO
                         const enderecoCompleto = triagem.nmLogradouro
                           ? `${triagem.nmLogradouro}, ${triagem.nrLogradouro} - ${triagem.nmBairro}`
                           : (triagem.nmLocal || "Endereço não retornado");
