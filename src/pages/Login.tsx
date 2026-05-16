@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
@@ -170,9 +170,12 @@ const Login = () => {
         <div className="mt-8 pt-8 border-t border-slate-50 text-center">
           <p className="text-xs text-slate-400 font-medium">
             Dúvidas?{" "}
-            <span className="text-blue-500 cursor-pointer hover:underline">
+            <Link
+              to="/contato"
+              className="text-blue-500 cursor-pointer hover:underline"
+            >
               Fale com o suporte
-            </span>
+            </Link>
           </p>
         </div>
       </div>

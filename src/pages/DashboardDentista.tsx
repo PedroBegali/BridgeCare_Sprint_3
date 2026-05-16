@@ -36,7 +36,7 @@ const ConfirmModal = ({ isOpen, config, onCancel, onConfirm }: any) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95">
         <div className="p-8 text-center flex flex-col items-center">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 text-orange-600 bg-orange-100">
