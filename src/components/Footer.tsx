@@ -149,7 +149,7 @@ function Footer() {
                     />
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/pedro-begalli-604208351/"
+                    href="https://www.linkedin.com/in/pedro-begali-604208351/"
                     target="_blank"
                     rel="noreferrer"
                   >

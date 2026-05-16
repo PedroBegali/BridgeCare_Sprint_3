@@ -69,7 +69,7 @@ function QuemSomos() {
       rm: "567478",
       foto: perfilPedro,
       github: "https://github.com/PedroBegali",
-      linkedin: "https://www.linkedin.com/in/pedro-begalli-604208351/",
+      linkedin: "https://www.linkedin.com/in/pedro-begali-604208351/",
     },
     {
       nome: "Lucas de Souza Dudena",
