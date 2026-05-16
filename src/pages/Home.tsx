@@ -14,6 +14,9 @@ import dentista_avaliando_paciente from "../assets/dentista_avaliando_paciente.j
 import dentista_preparando_equipamento from "../assets/dentista_preparando_equipamento.jpg";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+
+const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
+
 type AtendimentoFormData = {
   nome: string;
   responsavel?: string;
@@ -21,6 +24,7 @@ type AtendimentoFormData = {
   telefone: string;
   email: string;
 };
+
 function Home() {
   const diferenciais = [
     {
@@ -70,21 +74,46 @@ function Home() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [enviado, setEnviado] = useState(false);
-
+  const [salvando, setSalvando] = useState(false);
   const [nomeCliente, setNomeCliente] = useState("");
 
-  const onSubmit = (data: AtendimentoFormData) => {
-    console.log("Dados do Atendimento:", data);
+  const onSubmit = async (data: AtendimentoFormData) => {
+    setSalvando(true);
 
-    setNomeCliente(data.nome);
-    setEnviado(true);
+    try {
+      const payload = {
+        nmSolicitante: data.nome,
+        nmResponsavel: data.responsavel || null,
+        stLibras: data.libras === "Sim" ? "S" : "N",
+        nrTelefone: data.telefone,
+        email: data.email,
+      };
 
-    setTimeout(() => {
-      setIsModalOpen(false);
-      setEnviado(false);
-      setNomeCliente("");
-      reset();
-    }, 3000);
+      const response = await fetch(`${API_BASE_URL}/solicitantes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        setNomeCliente(data.nome);
+        setEnviado(true);
+
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setEnviado(false);
+          setNomeCliente("");
+          reset();
+        }, 3000);
+      } else {
+        alert("Ocorreu um erro ao enviar sua solicitação. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro na conexão:", error);
+      alert("Falha na conexão com o servidor.");
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -241,6 +270,7 @@ function Home() {
           </div>
         </div>
       </section>
+
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div
@@ -362,9 +392,10 @@ function Home() {
 
                   <button
                     type="submit"
-                    className="w-full bg-sky-500 text-white py-5 rounded-2xl font-bold text-lg hover:bg-sky-600 transition-all shadow-lg shadow-sky-200 active:scale-[0.98] mt-4"
+                    disabled={salvando}
+                    className="w-full bg-sky-500 text-white py-5 rounded-2xl font-bold text-lg hover:bg-sky-600 transition-all shadow-lg shadow-sky-200 active:scale-[0.98] mt-4 disabled:opacity-70"
                   >
-                    Enviar Solicitação
+                    {salvando ? "Enviando..." : "Enviar Solicitação"}
                   </button>
                 </form>
               </>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   UserCircle2,
@@ -13,7 +14,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const CardConsultaAtiva = ({ consulta }: any) => (
+const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
+
+const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataFormatada, horaFormatada }: any) => (
   <div className="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden relative group">
     <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -27,9 +30,9 @@ const CardConsultaAtiva = ({ consulta }: any) => (
               Data Agendada
             </p>
             <p className="text-blue-600 font-black text-2xl leading-none">
-              {consulta.data}
+              {dataFormatada}
             </p>
-            <p className="text-slate-700 font-bold mt-1">às {consulta.hora}</p>
+            <p className="text-slate-700 font-bold mt-1">às {horaFormatada}</p>
           </div>
         </div>
         <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -39,7 +42,7 @@ const CardConsultaAtiva = ({ consulta }: any) => (
             </h4>
             <p className="font-bold text-slate-900 flex items-center gap-2">
               <Stethoscope size={16} className="text-blue-500" />{" "}
-              {consulta.dentista}
+              {dentistaNome}
             </p>
           </div>
           <div>
@@ -47,7 +50,7 @@ const CardConsultaAtiva = ({ consulta }: any) => (
               Local do Atendimento
             </h4>
             <p className="text-slate-600 font-medium text-sm flex items-center gap-2">
-              <MapPin size={16} className="text-red-500" /> {consulta.local}
+              <MapPin size={16} className="text-red-500 shrink-0" /> {enderecoCompleto}
             </p>
           </div>
         </div>
@@ -56,117 +59,178 @@ const CardConsultaAtiva = ({ consulta }: any) => (
       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 flex flex-col justify-center">
         <div>
           <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
-            <AlertCircle size={16} className="text-blue-500" /> Motivo da
-            Consulta
+            <AlertCircle size={16} className="text-blue-500" /> Motivo da Consulta
           </h4>
           <p className="text-sm text-slate-600 leading-relaxed">
-            {consulta.descricao}
+            Avaliação Odontológica / Tratamento Clínico.
           </p>
         </div>
         <div className="pt-4 border-t border-slate-200">
           <h4 className="font-bold text-orange-600 mb-1">
-            Recomendações Prévias:
+            Recomendações do Dentista:
           </h4>
-          <p className="text-sm text-slate-600 italic">
-            "{consulta.recomendacoes}"
-          </p>
+          {consulta.dsRecomendacao ? (
+            <p className="text-sm text-slate-600 italic">
+              "{consulta.dsRecomendacao}"
+            </p>
+          ) : (
+             <p className="text-sm text-slate-400 italic">
+             Nenhuma recomendação prévia informada pelo médico.
+           </p>
+          )}
         </div>
       </div>
     </div>
   </div>
 );
 
-const CardHistorico = ({ item }: any) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between gap-6 hover:border-blue-200 transition-all group">
-    <div className="flex gap-6 items-center">
-      <div className="text-center bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-20">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">
-          Realizada
-        </p>
-        <p className="font-black text-slate-900 text-lg">
-          {item.data.split("/")[0]}/{item.data.split("/")[1]}
-        </p>
-        <p className="text-[10px] font-bold text-slate-400">
-          {item.data.split("/")[2]}
-        </p>
-      </div>
-      <div>
-        <h4 className="font-bold text-slate-900 flex items-center gap-2">
-          {item.dentista}
-        </h4>
-        <p className="text-xs text-slate-500 font-medium mb-3">{item.local}</p>
-        <div className="p-3 bg-blue-50/50 rounded-lg text-xs text-slate-600 leading-relaxed border-l-2 border-blue-400 flex items-start gap-2 max-w-xl">
-          <ClipboardCheck size={14} className="mt-0.5 text-blue-500 shrink-0" />
-          <span>
-            <strong>Prontuário:</strong> {item.prontuario}
-          </span>
+const CardHistorico = ({ item, dentistaNome, enderecoCompleto, dataFormatada }: any) => {
+  const dia = dataFormatada.split("/")[0];
+  const mes = dataFormatada.split("/")[1];
+  const ano = dataFormatada.split("/")[2];
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between gap-6 hover:border-blue-200 transition-all group">
+      <div className="flex gap-6 items-center">
+        <div className="text-center bg-slate-50 p-3 rounded-xl border border-slate-100 min-w-20">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Realizada</p>
+          <p className="font-black text-slate-900 text-lg">{dia}/{mes}</p>
+          <p className="text-[10px] font-bold text-slate-400">{ano}</p>
+        </div>
+        <div>
+          <h4 className="font-bold text-slate-900 flex items-center gap-2">
+            {dentistaNome}
+          </h4>
+          <p className="text-xs text-slate-500 font-medium mb-3"><MapPin size={12} className="inline mr-1"/>{enderecoCompleto}</p>
+          <div className="p-3 bg-blue-50/50 rounded-lg text-xs text-slate-600 leading-relaxed border-l-2 border-blue-400 flex items-start gap-2 max-w-xl">
+            <ClipboardCheck size={14} className="mt-0.5 text-blue-500 shrink-0" />
+            <span>
+              <strong>Prontuário:</strong> {item.dsProntuario || "O dentista ainda não preencheu o prontuário desta consulta."}
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const DashboardBeneficiario = () => {
+  const navigate = useNavigate();
+  const idBeneficiarioLogado = Number(localStorage.getItem("userId")) || 1;
+
   const [secaoAtiva, setSecaoAtiva] = useState("agenda");
   const [atualizacaoSucesso, setAtualizacaoSucesso] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+
+  const [proximasConsultas, setProximasConsultas] = useState<any[]>([]);
+  const [historicoConsultas, setHistoricoConsultas] = useState<any[]>([]);
+  const [dentistas, setDentistas] = useState<any[]>([]);
+  const [enderecos, setEnderecos] = useState<any[]>([]);
+  
+  
+  const [dadosPessoais, setDadosPessoais] = useState<any>({});
 
   const { register, handleSubmit, setValue } = useForm();
 
-  const beneficiarioData = {
-    nome: "Fátima Oliveira",
-    cpf: "123.456.789-00",
-    email: "fatima.oliveira@email.com",
-    telefone: "(11) 98888-7777",
-    cep: "01310-100",
-    rua: "Av. Paulista",
-    numero: "1000",
-    bairro: "Bela Vista",
-    cidade: "São Paulo",
+  const fetchSeguro = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      return null;
+    }
+  };
+
+  const carregarDados = async () => {
+    setLoading(true);
+    try {
+      const [
+        proximas, 
+        historico, 
+        listaDentistas, 
+        listaEnderecos,
+        listaBeneficiarios,
+        listaPreBeneficiarios,
+        listaSolicitantes
+      ] = await Promise.all([
+        fetchSeguro(`${API_BASE_URL}/consultas/beneficiario/${idBeneficiarioLogado}/proximas`),
+        fetchSeguro(`${API_BASE_URL}/consultas/beneficiario/${idBeneficiarioLogado}/historico`),
+        fetchSeguro(`${API_BASE_URL}/dentistas`),
+        fetchSeguro(`${API_BASE_URL}/enderecos`),
+        fetchSeguro(`${API_BASE_URL}/beneficiarios`),
+        fetchSeguro(`${API_BASE_URL}/pre-beneficiarios`),
+        fetchSeguro(`${API_BASE_URL}/solicitantes`)
+      ]);
+
+      setProximasConsultas(proximas || []);
+      setHistoricoConsultas(historico || []);
+      setDentistas(listaDentistas || []);
+      setEnderecos(listaEnderecos || []);
+
+      if (listaBeneficiarios && listaPreBeneficiarios) {
+        const meuBeneficiario = listaBeneficiarios.find((b: any) => b.idBeneficiario === idBeneficiarioLogado);
+        
+        if (meuBeneficiario) {
+          const meuPreBenef = listaPreBeneficiarios.find((pb: any) => pb.idPreBeneficiario === meuBeneficiario.idPreBeneficiario);
+          
+          if (meuPreBenef) {
+            const meuSolicitante = listaSolicitantes?.find((s: any) => s.idSolicitante === meuPreBenef.idSolicitante);
+            const meuEndereco = listaEnderecos?.find((e: any) => e.idEndereco === meuPreBenef.idEndereco);
+
+            setDadosPessoais({
+              idEndereco: meuPreBenef.idEndereco,
+              idSolicitante: meuPreBenef.idSolicitante,
+              nome: meuPreBenef.nmPreBeneficiario || "",
+            });
+
+            setValue("nome", meuPreBenef.nmPreBeneficiario);
+            setValue("email", meuSolicitante ? meuSolicitante.email : "");
+            setValue("telefone", meuSolicitante ? meuSolicitante.nrTelefone : "");
+            
+            if (meuEndereco) {
+              setValue("cep", meuEndereco.nrCep);
+              setValue("rua", meuEndereco.nmLogradouro);
+              setValue("numero", meuEndereco.nrLogradouro);
+              setValue("bairro", meuEndereco.nmBairro);
+              setValue("cidade", meuEndereco.nmCidade);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dashboard:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    Object.keys(beneficiarioData).forEach((key) => {
-      setValue(key, beneficiarioData[key as keyof typeof beneficiarioData]);
-    });
-  }, [setValue]);
+    carregarDados();
+  }, []);
 
-  const proximasConsultas = [
-    {
-      id: 1,
-      data: "15/04/2026",
-      hora: "10:00",
-      dentista: "Dra. Ana Beatriz",
-      local: "Unidade Central - Av. Paulista, 1000",
-      descricao: "Limpeza profilática e avaliação de cáries.",
-      recomendacoes:
-        "Trazer escova de dentes e chegar com 15 minutos de antecedência.",
-    },
-  ];
+  const formatarData = (d: any) => {
+    if (!d) return "Data indefinida";
+    if (Array.isArray(d)) return `${String(d[2]).padStart(2, '0')}/${String(d[1]).padStart(2, '0')}/${d[0]}`;
+    return d;
+  };
 
-  const historicoConsultas = [
-    {
-      id: 101,
-      data: "10/01/2026",
-      dentista: "Dr. Ricardo Santos",
-      local: "Clínica Parceira Sul",
-      prontuario:
-        "Paciente apresentou boa higiene. Realizada restauração no dente 24 (Resina Composta).",
-    },
-    {
-      id: 102,
-      data: "20/02/2025",
-      dentista: "Dra. Maria Silva",
-      local: "Unidade Norte - Rua das Palmeiras, 500",
-      prontuario:
-        "Paciente relatou dor aguda. Realizado exame radiológico e prescrição de analgésicos.",
-    },
-  ];
+  const formatarHora = (h: any) => {
+    if (!h) return "";
+    if (Array.isArray(h)) return `${String(h[0]).padStart(2, '0')}:${String(h[1]).padStart(2, '0')}`;
+    return h;
+  };
 
-  const menuItems = [
-    { id: "agenda", icon: Calendar, label: "Próximas Consultas" },
-    { id: "historico", icon: History, label: "Histórico Clínico" },
-    { id: "perfil", icon: User, label: "Meus Dados" },
-  ];
+  const getNomeDentista = (id: number) => {
+    const d = dentistas.find((den) => den.idDentista === id);
+    return d ? d.nmDentista : `Dr(a). Indefinido`;
+  };
+
+  const getEnderecoCompleto = (id: number) => {
+    const e = enderecos.find((end) => end.idEndereco === id);
+    return e ? `${e.nmLogradouro}, ${e.nrLogradouro} - ${e.nmBairro}, ${e.nmCidade}` : "Endereço não encontrado";
+  };
 
   const buscarCEP = async (e: any) => {
     const cep = e.target.value.replace(/\D/g, "");
@@ -186,11 +250,72 @@ const DashboardBeneficiario = () => {
     }
   };
 
-  const onSubmitPerfil = (data: any) => {
-    console.log("Dados atualizados na T_BC_SOLICITANTE e T_BC_ENDERECO:", data);
-    setAtualizacaoSucesso(true);
-    setTimeout(() => setAtualizacaoSucesso(false), 3000);
+  const onSubmitPerfil = async (data: any) => {
+    setSalvando(true);
+
+    try {
+      const reqSolicitante = fetch(`${API_BASE_URL}/solicitantes/${dadosPessoais.idSolicitante}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idSolicitante: dadosPessoais.idSolicitante,
+          nrTelefone: data.telefone,
+          email: data.email
+        })
+      });
+
+      const reqEndereco = fetch(`${API_BASE_URL}/enderecos/${dadosPessoais.idEndereco}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idEndereco: dadosPessoais.idEndereco,
+          nmLocal: "P", 
+          nmLogradouro: data.rua,
+          nrLogradouro: Number(data.numero),
+          nmBairro: data.bairro,
+          nmCidade: data.cidade,
+          nrCep: data.cep.replace(/\D/g, "")
+        })
+      });
+
+      const [resSol, resEnd] = await Promise.all([reqSolicitante, reqEndereco]);
+
+      if (resSol.ok && resEnd.ok) {
+        setAtualizacaoSucesso(true);
+        setTimeout(() => setAtualizacaoSucesso(false), 3000);
+      } else {
+        alert("Ocorreu um erro ao atualizar os seus dados. Verifique a consola.");
+      }
+
+    } catch (error) {
+      console.error("Erro na requisição PUT:", error);
+    } finally {
+      setSalvando(false);
+    }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userId");
+    navigate("/");
+  };
+
+  const menuItems = [
+    { id: "agenda", icon: Calendar, label: "Próximas Consultas" },
+    { id: "historico", icon: History, label: "Histórico Clínico" },
+    { id: "perfil", icon: User, label: "Meus Dados" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-bold">Carregando seu histórico de saúde...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
@@ -222,7 +347,7 @@ const DashboardBeneficiario = () => {
         </nav>
 
         <div className="p-6 border-t border-slate-100 bg-slate-50/50">
-          <button className="flex items-center gap-3 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm">
+          <button onClick={handleLogout} className="flex items-center gap-3 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm">
             <LogOut size={18} /> Sair da Conta
           </button>
         </div>
@@ -232,7 +357,7 @@ const DashboardBeneficiario = () => {
         <header className="bg-white h-20 border-b border-slate-200 flex items-center px-8 justify-between shrink-0">
           <h2 className="font-black text-slate-900 text-lg flex items-center gap-2">
             <UserCircle2 className="text-blue-600" />
-            Olá, {beneficiarioData.nome.split(" ")[0]}!
+            Olá, {dadosPessoais.nome ? dadosPessoais.nome.split(" ")[0] : "Paciente"}!
           </h2>
           <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full">
             Beneficiário Ativo
@@ -240,6 +365,7 @@ const DashboardBeneficiario = () => {
         </header>
 
         <div className="flex-1 p-6 md:p-10 overflow-y-auto bg-slate-50">
+          
           {secaoAtiva === "agenda" && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8 max-w-4xl">
               <div>
@@ -253,7 +379,14 @@ const DashboardBeneficiario = () => {
 
               {proximasConsultas.length > 0 ? (
                 proximasConsultas.map((consulta) => (
-                  <CardConsultaAtiva key={consulta.id} consulta={consulta} />
+                  <CardConsultaAtiva 
+                    key={consulta.idConsulta} 
+                    consulta={consulta} 
+                    dentistaNome={getNomeDentista(consulta.idDentista)}
+                    enderecoCompleto={getEnderecoCompleto(consulta.idEndereco)}
+                    dataFormatada={formatarData(consulta.dtConsulta)}
+                    horaFormatada={formatarHora(consulta.hrConsulta)}
+                  />
                 ))
               ) : (
                 <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center">
@@ -262,8 +395,7 @@ const DashboardBeneficiario = () => {
                     Nenhuma consulta agendada
                   </h3>
                   <p className="text-slate-500 mt-2">
-                    Você será notificado assim que a central agendar seu próximo
-                    atendimento.
+                    Você será notificado assim que a central agendar seu próximo atendimento.
                   </p>
                 </div>
               )}
@@ -282,9 +414,21 @@ const DashboardBeneficiario = () => {
               </div>
 
               <div className="space-y-4">
-                {historicoConsultas.map((item) => (
-                  <CardHistorico key={item.id} item={item} />
-                ))}
+                {historicoConsultas.length > 0 ? (
+                  historicoConsultas.map((item) => (
+                    <CardHistorico 
+                      key={item.idConsulta} 
+                      item={item} 
+                      dentistaNome={getNomeDentista(item.idDentista)}
+                      enderecoCompleto={getEnderecoCompleto(item.idEndereco)}
+                      dataFormatada={formatarData(item.dtConsulta)}
+                    />
+                  ))
+                ) : (
+                  <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500">
+                    Nenhuma consulta registrada em seu histórico.
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -297,24 +441,21 @@ const DashboardBeneficiario = () => {
                     Meus Dados Cadastrais
                   </h2>
                   <p className="text-slate-500 mt-1">
-                    Mantenha suas informações atualizadas para não perder nossos
-                    contatos.
+                    Mantenha suas informações atualizadas para não perder nossos contatos.
                   </p>
                 </div>
 
                 {!atualizacaoSucesso ? (
-                  <form
-                    onSubmit={handleSubmit(onSubmitPerfil)}
-                    className="space-y-6"
-                  >
+                  <form onSubmit={handleSubmit(onSubmitPerfil)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
                         <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                          Nome Completo
+                          Nome Completo (Apenas Leitura)
                         </label>
                         <input
-                          {...register("nome", { required: true })}
-                          className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-colors"
+                          {...register("nome")}
+                          disabled
+                          className="w-full p-4 bg-slate-100 text-slate-500 border border-slate-200 rounded-2xl outline-none"
                         />
                       </div>
 
@@ -346,9 +487,7 @@ const DashboardBeneficiario = () => {
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="md:col-span-1">
-                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                            CEP
-                          </label>
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">CEP</label>
                           <input
                             {...register("cep", { required: true })}
                             onBlur={buscarCEP}
@@ -356,18 +495,14 @@ const DashboardBeneficiario = () => {
                           />
                         </div>
                         <div className="md:col-span-3">
-                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                            Logradouro / Rua
-                          </label>
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Logradouro / Rua</label>
                           <input
                             {...register("rua", { required: true })}
                             className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div className="md:col-span-1">
-                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                            Número
-                          </label>
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Número</label>
                           <input
                             id="numeroBeneficiario"
                             {...register("numero", { required: true })}
@@ -375,18 +510,14 @@ const DashboardBeneficiario = () => {
                           />
                         </div>
                         <div className="md:col-span-1">
-                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                            Bairro
-                          </label>
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Bairro</label>
                           <input
                             {...register("bairro", { required: true })}
                             className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
-                            Cidade
-                          </label>
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Cidade</label>
                           <input
                             {...register("cidade", { required: true })}
                             className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-colors"
@@ -397,9 +528,10 @@ const DashboardBeneficiario = () => {
 
                     <button
                       type="submit"
-                      className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98] mt-4"
+                      disabled={salvando}
+                      className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98] mt-4 disabled:opacity-70"
                     >
-                      SALVAR ALTERAÇÕES
+                      {salvando ? "A GUARDAR DADOS..." : "SALVAR ALTERAÇÕES"}
                     </button>
                   </form>
                 ) : (
@@ -411,8 +543,7 @@ const DashboardBeneficiario = () => {
                       Dados Atualizados!
                     </h3>
                     <p className="text-slate-500">
-                      Suas informações foram salvas com sucesso em nossa base de
-                      dados.
+                      As suas informações foram salvas com sucesso na base de dados.
                     </p>
                   </div>
                 )}
