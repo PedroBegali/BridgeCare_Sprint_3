@@ -15,6 +15,7 @@ import {
   Send,
   MessageSquarePlus,
   CalendarPlus,
+  AlertTriangle
 } from "lucide-react";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
@@ -31,6 +32,32 @@ const EstatisticaCard = ({ titulo, valor, icone: Icon, cor }: any) => (
   </div>
 );
 
+const ConfirmModal = ({ isOpen, config, onCancel, onConfirm }: any) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95">
+        <div className="p-8 text-center flex flex-col items-center">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 text-orange-600 bg-orange-100">
+            <AlertTriangle size={40} />
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">{config.title}</h3>
+          <p className="text-slate-500 leading-relaxed">{config.message}</p>
+        </div>
+        <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
+          <button onClick={onCancel} className="flex-1 px-6 py-3 font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-colors">
+            Cancelar
+          </button>
+          <button onClick={() => { onConfirm(); onCancel(); }} className="flex-1 px-6 py-3 font-black text-white rounded-xl shadow-lg transition-all active:scale-95 bg-blue-600 hover:bg-blue-700">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CardAgenda = ({
   consulta,
   pacienteNome,
@@ -42,6 +69,7 @@ const CardAgenda = ({
     consulta.dsRecomendacao || "",
   );
   const [enviando, setEnviando] = useState(false);
+  const [modalConfirmRec, setModalConfirmRec] = useState(false);
 
   const enviarRecomendacao = async () => {
     if (!recomendacao.trim()) return;
@@ -70,47 +98,56 @@ const CardAgenda = ({
     : "Endereço não informado";
 
   return (
-    <div className="flex flex-col p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group gap-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0">
-            <User size={20} />
+    <>
+      <ConfirmModal 
+        isOpen={modalConfirmRec} 
+        config={{title: "Enviar Recomendação", message: `Deseja enviar a recomendação "${recomendacao}" para o paciente ${pacienteNome}?`}} 
+        onCancel={() => setModalConfirmRec(false)} 
+        onConfirm={enviarRecomendacao} 
+      />
+      
+      <div className="flex flex-col p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0">
+              <User size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 text-lg leading-tight">
+                {pacienteNome}
+              </h4>
+              <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+                <MapPin size={12} className="text-red-400" /> {enderecoFormatado}
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-slate-900 text-lg leading-tight">
-              {pacienteNome}
-            </h4>
-            <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-              <MapPin size={12} className="text-red-400" /> {enderecoFormatado}
+          <div className="mt-4 md:mt-0 text-left md:text-right bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 shrink-0">
+            <p className="text-sm font-black text-blue-600">{data}</p>
+            <p className="text-xs text-slate-500 font-bold flex items-center justify-end gap-1">
+              <Clock size={12} /> {hora}
             </p>
           </div>
         </div>
-        <div className="mt-4 md:mt-0 text-left md:text-right bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 shrink-0">
-          <p className="text-sm font-black text-blue-600">{data}</p>
-          <p className="text-xs text-slate-500 font-bold flex items-center justify-end gap-1">
-            <Clock size={12} /> {hora}
-          </p>
+
+        <div className="pt-3 border-t border-slate-100 flex gap-2 items-center">
+          <input
+            type="text"
+            value={recomendacao}
+            onChange={(e) => setRecomendacao(e.target.value)}
+            placeholder="Escreva uma recomendação (ex: Escovar os dentes)"
+            className="flex-1 bg-slate-50 text-xs p-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400"
+          />
+          <button
+            onClick={() => setModalConfirmRec(true)}
+            disabled={!recomendacao || enviando}
+            className="bg-blue-100 text-blue-700 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50"
+            title="Salvar Recomendação"
+          >
+            <MessageSquarePlus size={16} />
+          </button>
         </div>
       </div>
-
-      <div className="pt-3 border-t border-slate-100 flex gap-2 items-center">
-        <input
-          type="text"
-          value={recomendacao}
-          onChange={(e) => setRecomendacao(e.target.value)}
-          placeholder="Escreva uma recomendação (ex: Escovar os dentes)"
-          className="flex-1 bg-slate-50 text-xs p-2.5 rounded-lg border border-slate-200 outline-none focus:border-blue-400"
-        />
-        <button
-          onClick={enviarRecomendacao}
-          disabled={!recomendacao || enviando}
-          className="bg-blue-100 text-blue-700 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50"
-          title="Salvar Recomendação"
-        >
-          <MessageSquarePlus size={16} />
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 
@@ -127,12 +164,16 @@ const DashboardDentista = () => {
   const [agenda, setAgenda] = useState<any[]>([]);
   const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
 
+  const [termoBusca, setTermoBusca] = useState("");
+
   const [consultasAtendidas, setConsultasAtendidas] = useState(0);
   const [enderecosConsultorios, setEnderecosConsultorios] = useState<any[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<any>(null);
   const [prontuarioSucesso, setProntuarioSucesso] = useState(false);
+
+  const [modalConfirmStatus, setModalConfirmStatus] = useState(false);
 
   const [materialEnviado, setMaterialEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -151,7 +192,6 @@ const DashboardDentista = () => {
       if (!res.ok) return null;
       return await res.json();
     } catch (err) {
-      console.error(`Falha ao buscar ${url}:`, err);
       return null;
     }
   };
@@ -201,7 +241,6 @@ const DashboardDentista = () => {
         );
       }
     } catch (error) {
-      console.error("Erro inesperado:", error);
     } finally {
       setLoading(false);
     }
@@ -226,7 +265,6 @@ const DashboardDentista = () => {
         alert("Falha ao atualizar o status na base de dados.");
       }
     } catch (error) {
-      console.error("Erro ao mudar status:", error);
     }
   };
 
@@ -238,6 +276,16 @@ const DashboardDentista = () => {
       ? paciente.nmPreBeneficiario
       : `Paciente #${idBeneficiario}`;
   };
+
+  const filtroBusca = (item: any) => {
+    if (!termoBusca) return true;
+    const termo = termoBusca.toLowerCase();
+    const nome = getNomeBeneficiario(item.idBeneficiario).toLowerCase();
+    return nome.includes(termo);
+  };
+
+  const agendaFiltrada = agenda.filter(filtroBusca);
+  const consultasPendentesFiltradas = consultasPendentes.filter(filtroBusca);
 
   const formatarData = (d: any) => {
     if (!d) return "Data indefinida";
@@ -291,7 +339,6 @@ const DashboardDentista = () => {
         alert("Erro ao salvar prontuário.");
       }
     } catch (error) {
-      console.error(error);
     }
   };
 
@@ -320,7 +367,6 @@ const DashboardDentista = () => {
         alert("Erro ao agendar consulta. Verifique os dados.");
       }
     } catch (error) {
-      console.error(error);
     }
   };
 
@@ -341,7 +387,6 @@ const DashboardDentista = () => {
       e.target.reset();
       setTimeout(() => setMaterialEnviado(false), 4000);
     } catch (error) {
-      console.error(error);
     } finally {
       setEnviando(false);
     }
@@ -353,7 +398,7 @@ const DashboardDentista = () => {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-slate-500 font-bold">
-            Carregando dados da clínica...
+            Carregando dados do Dentista...
           </p>
         </div>
       </div>
@@ -362,10 +407,21 @@ const DashboardDentista = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      
+      <ConfirmModal 
+        isOpen={modalConfirmStatus} 
+        config={{
+          title: "Alterar Status", 
+          message: `Tem certeza que deseja alterar seu status para ${estaAtivo ? 'Ausente' : 'Recebendo Pacientes'}?`
+        }} 
+        onCancel={() => setModalConfirmStatus(false)} 
+        onConfirm={handleToggleStatus} 
+      />
+
       <aside className="w-full md:w-72 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-100">
           <h1 className="text-2xl font-black text-slate-600 tracking-tight">
-            BridgeCare
+            Dashboard
           </h1>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
             Dentista
@@ -418,6 +474,8 @@ const DashboardDentista = () => {
             <input
               type="text"
               placeholder="Buscar paciente na agenda..."
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
               className="bg-transparent border-none outline-none w-full text-sm placeholder:text-slate-400 text-slate-700"
             />
           </div>
@@ -429,7 +487,7 @@ const DashboardDentista = () => {
               {estaAtivo ? "Recebendo Pacientes" : "Ausente"}
             </span>
             <button
-              onClick={handleToggleStatus}
+              onClick={() => setModalConfirmStatus(true)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${estaAtivo ? "bg-green-500" : "bg-slate-300"}`}
             >
               <div
@@ -451,7 +509,7 @@ const DashboardDentista = () => {
                   !
                 </h2>
                 <p className="text-slate-500 mt-1">
-                  Aqui está o resumo da sua clínica hoje.
+                  Aqui está o resumo dos seus atendimentos pela ONG.
                 </p>
               </div>
 
@@ -482,7 +540,7 @@ const DashboardDentista = () => {
                     Próximos Pacientes
                   </h3>
                   <div className="space-y-3">
-                    {agenda.slice(0, 4).map((item) => (
+                    {agendaFiltrada.slice(0, 4).map((item) => (
                       <CardAgenda
                         key={item.idConsulta}
                         consulta={item}
@@ -492,8 +550,8 @@ const DashboardDentista = () => {
                         onRecarregar={carregarDados}
                       />
                     ))}
-                    {agenda.length === 0 && (
-                      <p className="text-sm text-slate-500">Agenda livre.</p>
+                    {agendaFiltrada.length === 0 && (
+                      <p className="text-sm text-slate-500">Agenda livre ou busca não encontrada.</p>
                     )}
                   </div>
                 </div>
@@ -502,11 +560,11 @@ const DashboardDentista = () => {
                   <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-4 flex items-center justify-between">
                     Atenção Necessária
                     <span className="bg-orange-100 text-orange-600 text-xs font-bold px-2 py-1 rounded-md">
-                      {consultasPendentes.length}
+                      {consultasPendentesFiltradas.length}
                     </span>
                   </h3>
                   <div className="space-y-3">
-                    {consultasPendentes.map((pend) => (
+                    {consultasPendentesFiltradas.map((pend) => (
                       <div
                         key={pend.idConsulta}
                         className="p-4 rounded-xl bg-orange-50 border border-orange-100 flex justify-between items-center"
@@ -533,7 +591,7 @@ const DashboardDentista = () => {
                         </button>
                       </div>
                     ))}
-                    {consultasPendentes.length === 0 && (
+                    {consultasPendentesFiltradas.length === 0 && (
                       <p className="text-sm text-slate-500">
                         Nenhuma pendência.
                       </p>
@@ -550,7 +608,7 @@ const DashboardDentista = () => {
                 Minha Agenda
               </h2>
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                {agenda.map((item) => (
+                {agendaFiltrada.map((item) => (
                   <CardAgenda
                     key={item.idConsulta}
                     consulta={item}
@@ -560,7 +618,7 @@ const DashboardDentista = () => {
                     onRecarregar={carregarDados}
                   />
                 ))}
-                {agenda.length === 0 && (
+                {agendaFiltrada.length === 0 && (
                   <p className="text-slate-500">
                     Você não possui consultas futuras agendadas.
                   </p>
@@ -653,7 +711,7 @@ const DashboardDentista = () => {
                     </select>
                     {enderecosConsultorios.length === 0 && (
                       <p className="text-xs text-red-500 mt-1">
-                        Atenção: Não há endereços do tipo Consultório (C) na
+                        Atenção: Não há endereços de Consultórios na
                         base.
                       </p>
                     )}
@@ -680,7 +738,7 @@ const DashboardDentista = () => {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {consultasPendentes.map((pendencia) => (
+                {consultasPendentesFiltradas.map((pendencia) => (
                   <div
                     key={pendencia.idConsulta}
                     className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between"
@@ -707,7 +765,7 @@ const DashboardDentista = () => {
                     </button>
                   </div>
                 ))}
-                {consultasPendentes.length === 0 && (
+                {consultasPendentesFiltradas.length === 0 && (
                   <div className="col-span-2 bg-green-50 p-6 rounded-2xl border border-green-200 text-center">
                     <CheckCircle2
                       size={32}
@@ -842,7 +900,7 @@ const DashboardDentista = () => {
                     ></textarea>
                     {errors.ds_prontuario && (
                       <span className="text-red-500 text-xs mt-1 block">
-                        O prontuário é obrigatório e deve ter no mínimo 10
+                        O prontuário deve ter no mínimo 10
                         caracteres.
                       </span>
                     )}
@@ -873,7 +931,7 @@ const DashboardDentista = () => {
                     Prontuário Salvo!
                   </h3>
                   <p className="text-slate-500">
-                    O histórico clínico do paciente foi updated com sucesso na
+                    O histórico clínico do paciente foi atualizado com sucesso na
                     base de dados.
                   </p>
                 </div>
