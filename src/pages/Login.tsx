@@ -169,7 +169,7 @@ const Login = () => {
 
         <div className="mt-8 pt-8 border-t border-slate-50 text-center">
           <p className="text-xs text-slate-400 font-medium">
-            Esqueceu suas credenciais?{" "}
+            Dúvidas?{" "}
             <span className="text-blue-500 cursor-pointer hover:underline">
               Fale com o suporte
             </span>

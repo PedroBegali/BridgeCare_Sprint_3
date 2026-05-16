@@ -192,6 +192,11 @@ const DashboardAtendente = () => {
     onConfirm: () => {},
   });
 
+  const [modalRemarcar, setModalRemarcar] = useState<any>({
+    isOpen: false,
+    pb: null,
+  });
+
   const { register, handleSubmit, setValue, reset } = useForm();
   const formEnderecoTriagem = useForm();
 
@@ -418,9 +423,9 @@ const DashboardAtendente = () => {
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const data = await response.json();
         if (!data.erro) {
-          formMethods.setValue(`${prefix}rua`, data.logradouro);
-          formMethods.setValue(`${prefix}bairro`, data.bairro);
-          formMethods.setValue(`${prefix}cidade`, data.localidade);
+          formMethods.setValue(`rua${prefix}`, data.logradouro);
+          formMethods.setValue(`bairro${prefix}`, data.bairro);
+          formMethods.setValue(`cidade${prefix}`, data.localidade);
         }
       } catch (error) {}
     }
@@ -463,6 +468,55 @@ const DashboardAtendente = () => {
         onCancel={() => setModalConfirm({ ...modalConfirm, isOpen: false })}
         onConfirm={modalConfirm.onConfirm}
       />
+
+      {modalRemarcar.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-black text-slate-900">Remarcar Triagem</h2>
+              <button onClick={() => setModalRemarcar({ isOpen: false, pb: null })} className="text-slate-400 hover:text-red-500">
+                <X size={24} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <label className="block text-xs font-bold text-slate-700 uppercase">Selecione a Nova Triagem</label>
+              <select id="selectNovaTriagem" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500">
+                <option value="">Selecione...</option>
+                {triagens.map((t) => {
+                  const id = t.idTriagem || t.id;
+                  const dataFormatada = Array.isArray(t.dtTriagem)
+                    ? `${String(t.dtTriagem[2]).padStart(2, "0")}/${String(t.dtTriagem[1]).padStart(2, "0")}/${t.dtTriagem[0]}`
+                    : t.dtTriagem;
+                  return (
+                    <option key={id} value={id}>
+                      {dataFormatada} - {t.nmLogradouro || t.nmLocal}
+                    </option>
+                  );
+                })}
+              </select>
+              <button
+                onClick={async () => {
+                  const select = document.getElementById("selectNovaTriagem") as HTMLSelectElement;
+                  if (!select.value) return;
+                  try {
+                    const payload = { ...modalRemarcar.pb, idTriagem: Number(select.value) };
+                    await fetch(`${API_BASE_URL}/pre-beneficiarios/${modalRemarcar.pb.idPreBeneficiario}`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
+                    carregarDados();
+                    setModalRemarcar({ isOpen: false, pb: null });
+                  } catch (e) {}
+                }}
+                className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 transition-all active:scale-[0.98]"
+              >
+                CONFIRMAR REAGENDAMENTO
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <aside className="w-full md:w-72 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-100">
@@ -647,66 +701,78 @@ const DashboardAtendente = () => {
                 Aguardando Avaliação da Triagem
               </h2>
               <div className="grid grid-cols-1 gap-4">
-                {preBeneficiariosEmAnaliseFiltrados.map((pb) => (
-                  <div
-                    key={pb.idPreBeneficiario}
-                    className="bg-white p-6 rounded-3xl border-l-8 border-amber-400 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-md transition-all"
-                  >
-                    <div>
-                      <h4 className="text-xl font-black text-slate-900">
-                        {pb.nmPreBeneficiario}
-                      </h4>
-                      <p className="text-sm text-slate-500 mt-1 font-medium">
-                        CPF: {pb.cpfPreBeneficiario}
-                      </p>
-                      <p className="text-xs text-amber-700 font-bold mt-3 bg-amber-50 inline-block px-3 py-1.5 rounded-lg border border-amber-100">
-                        Descrição odontológica: {pb.dsProblemaDentario}
-                      </p>
+                {preBeneficiariosEmAnaliseFiltrados.map((pb) => {
+                  const triagemValida = triagens.find((t) => (t.idTriagem || t.id) === pb.idTriagem);
+
+                  return (
+                    <div
+                      key={pb.idPreBeneficiario}
+                      className="bg-white p-6 rounded-3xl border-l-8 border-amber-400 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-md transition-all"
+                    >
+                      <div>
+                        <h4 className="text-xl font-black text-slate-900">
+                          {pb.nmPreBeneficiario}
+                        </h4>
+                        <p className="text-sm text-slate-500 mt-1 font-medium">
+                          CPF: {pb.cpfPreBeneficiario}
+                        </p>
+                        <p className="text-xs text-amber-700 font-bold mt-3 bg-amber-50 inline-block px-3 py-1.5 rounded-lg border border-amber-100">
+                          Descrição odontológica: {pb.dsProblemaDentario}
+                        </p>
+                      </div>
+                      <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
+                        {!triagemValida && (
+                          <button
+                            onClick={() => setModalRemarcar({ isOpen: true, pb })}
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-blue-200 text-blue-600 px-6 py-4 rounded-xl font-black hover:bg-blue-50 transition-all active:scale-[0.98]"
+                          >
+                            <CalendarClock size={18} /> Remarcar
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            setModalConfirm({
+                              isOpen: true,
+                              config: {
+                                type: "danger",
+                                title: "Reprovar Paciente",
+                                message: `Tem certeza que deseja REPROVAR o paciente ${pb.nmPreBeneficiario}? Esta ação atualizará o status dele para "RP".`,
+                              },
+                              onConfirm: () =>
+                                atualizarStatusPreBeneficiario(
+                                  pb.idPreBeneficiario,
+                                  "RP",
+                                ),
+                            })
+                          }
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-red-200 text-red-600 px-6 py-4 rounded-xl font-black hover:bg-red-50 transition-all active:scale-[0.98]"
+                        >
+                          <X size={18} /> Reprovar
+                        </button>
+                        <button
+                          onClick={() =>
+                            setModalConfirm({
+                              isOpen: true,
+                              config: {
+                                type: "success",
+                                title: "Aprovar Paciente",
+                                message: `Tem certeza que deseja APROVAR o paciente ${pb.nmPreBeneficiario}? Ele será convertido num Beneficiário Ativo.`,
+                              },
+                              onConfirm: () =>
+                                atualizarStatusPreBeneficiario(
+                                  pb.idPreBeneficiario,
+                                  "AP",
+                                ),
+                            })
+                          }
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-green-200 text-green-600 px-6 py-4 rounded-xl font-black hover:bg-green-50 transition-all active:scale-[0.98]"
+                        >
+                          <Check size={18} /> Aprovar
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
-                      <button
-                        onClick={() =>
-                          setModalConfirm({
-                            isOpen: true,
-                            config: {
-                              type: "danger",
-                              title: "Reprovar Paciente",
-                              message: `Tem certeza que deseja REPROVAR o paciente ${pb.nmPreBeneficiario}? Esta ação atualizará o status dele para "RP".`,
-                            },
-                            onConfirm: () =>
-                              atualizarStatusPreBeneficiario(
-                                pb.idPreBeneficiario,
-                                "RP",
-                              ),
-                          })
-                        }
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-red-200 text-red-600 px-6 py-4 rounded-xl font-black hover:bg-red-50 transition-all active:scale-[0.98]"
-                      >
-                        <X size={18} /> Reprovar
-                      </button>
-                      <button
-                        onClick={() =>
-                          setModalConfirm({
-                            isOpen: true,
-                            config: {
-                              type: "success",
-                              title: "Aprovar Paciente",
-                              message: `Tem certeza que deseja APROVAR o paciente ${pb.nmPreBeneficiario}? Ele será convertido num Beneficiário Ativo.`,
-                            },
-                            onConfirm: () =>
-                              atualizarStatusPreBeneficiario(
-                                pb.idPreBeneficiario,
-                                "AP",
-                              ),
-                          })
-                        }
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-4 rounded-xl font-black hover:bg-green-700 transition-all shadow-lg shadow-green-200 active:scale-[0.98]"
-                      >
-                        <Check size={18} /> Aprovar
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {preBeneficiariosEmAnaliseFiltrados.length === 0 && (
                   <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center">
                     <p className="text-slate-500 font-bold">
@@ -1160,9 +1226,6 @@ const DashboardAtendente = () => {
                             <div className="flex justify-between items-start mb-4">
                               <span className="bg-slate-100 text-slate-500 text-[10px] font-black tracking-widest px-2.5 py-1 rounded-md group-hover:bg-blue-600 group-hover:text-white transition-colors">
                                 ID: {id}
-                              </span>
-                              <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md uppercase tracking-widest border border-blue-100">
-                                {triagem.vagas} VAGAS
                               </span>
                             </div>
 

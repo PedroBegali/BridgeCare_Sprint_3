@@ -284,7 +284,7 @@ const DashboardBeneficiario = () => {
         setAtualizacaoSucesso(true);
         setTimeout(() => setAtualizacaoSucesso(false), 3000);
       } else {
-        alert("Ocorreu um erro ao atualizar os seus dados. Verifique a consola.");
+        alert("Ocorreu um erro ao atualizar os seus dados.");
       }
 
     } catch (error) {
@@ -359,9 +359,6 @@ const DashboardBeneficiario = () => {
             <UserCircle2 className="text-blue-600" />
             Olá, {dadosPessoais.nome ? dadosPessoais.nome.split(" ")[0] : "Paciente"}!
           </h2>
-          <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full">
-            Beneficiário Ativo
-          </span>
         </header>
 
         <div className="flex-1 p-6 md:p-10 overflow-y-auto bg-slate-50">
@@ -395,7 +392,7 @@ const DashboardBeneficiario = () => {
                     Nenhuma consulta agendada
                   </h3>
                   <p className="text-slate-500 mt-2">
-                    Você será notificado assim que a central agendar seu próximo atendimento.
+                    Atualizaremos assim que a central agendar seu próximo atendimento.
                   </p>
                 </div>
               )}
