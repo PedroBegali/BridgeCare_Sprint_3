@@ -6,7 +6,15 @@ Nesta etapa, o projeto deixou de ser um conjunto de páginas estáticas para se 
 
 ---
 
-## 👥 Equipe
+## 📸 Imagens e Interface do Projeto
+*(Abaixo estão as representações visuais da nossa aplicação)*
+
+![Banner do Projeto](./src/assets/imageHome.png)
+![Dashboard Atendente](./src/assets/imageDashboard.png)
+
+---
+
+## 👥 Autores e Equipe
 * **Alan Christopher G. Miranda**
 * **Lucas de S. Dudena**
 * **Pedro Begali Campos**
@@ -57,10 +65,19 @@ Otimizada para o processo de *Build* profissional:
 
 ---
 
-## 🔗 Links Úteis
-* **Repositório:** [https://github.com/PedroBegali/BridgeCare_Sprint_3](https://github.com/PedroBegali/BridgeCare_Sprint_3)
+## 💻 Como Usar
 
-* **Vídeo:** [https://youtu.be/fwBwqeGP2Os](https://youtu.be/fwBwqeGP2Os)
+Para testar a aplicação em ambiente de produção, acesse a URL da Vercel abaixo. **Esta aplicação já está consumindo remotamente a API criada na disciplina de Java**, permitindo que todos os testes de persistência, consultas e integrações sejam realizados em tempo real na base de dados.
+
+* 🌐 **Deploy na Vercel:** [https://vercel.com/pedrobegalis-projects/bridge-care](https://vercel.com/pedrobegalis-projects/bridge-care)
+* 📂 **Repositório GitHub:** [https://github.com/PedroBegali/BridgeCare_Sprint_4](https://github.com/PedroBegali/BridgeCare_Sprint_4)
+* 🎥 **Apresentação YouTube:** []()
+
+---
+
+## 🤝 Créditos e Contato
+
+Este projeto foi desenvolvido com a mentoria dos professores da FIAP e é destinado à ONG Turma do Bem. 
 
 ---
 *Projeto desenvolvido para fins acadêmicos - FIAP 2026.*
