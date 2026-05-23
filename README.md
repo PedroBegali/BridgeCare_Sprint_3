@@ -71,11 +71,11 @@ Para testar a aplicação em ambiente de produção, acesse a URL da Vercel abai
 
 * 🌐 **Deploy na Vercel:** [https://vercel.com/pedrobegalis-projects/bridge-care](https://vercel.com/pedrobegalis-projects/bridge-care)
 * 📂 **Repositório GitHub:** [https://github.com/PedroBegali/BridgeCare_Sprint_4](https://github.com/PedroBegali/BridgeCare_Sprint_4)
-* 🎥 **Apresentação YouTube:** []()
+* 🎥 **Apresentação YouTube:** [https://youtu.be/VKSZTcaMSIE](https://youtu.be/VKSZTcaMSIE)
 
 ---
 
-## 🤝 Créditos e Contato
+## 🤝 Créditos
 
 Este projeto foi desenvolvido com a mentoria dos professores da FIAP e é destinado à ONG Turma do Bem. 
 
