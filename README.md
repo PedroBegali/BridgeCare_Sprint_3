@@ -71,7 +71,7 @@ Para testar a aplicação em ambiente de produção, acesse a URL da Vercel abai
 
 * 🌐 **Deploy na Vercel:** [https://vercel.com/pedrobegalis-projects/bridge-care](https://vercel.com/pedrobegalis-projects/bridge-care)
 * 📂 **Repositório GitHub:** [https://github.com/PedroBegali/BridgeCare_Sprint_4](https://github.com/PedroBegali/BridgeCare_Sprint_4)
-* 🎥 **Apresentação YouTube:** [https://youtu.be/VKSZTcaMSIE](https://youtu.be/VKSZTcaMSIE)
+* 🎥 **Apresentação YouTube:** [https://youtu.be/AFDLPd0bz2c](https://youtu.be/AFDLPd0bz2c)
 
 ---
 
