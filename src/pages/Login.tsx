@@ -4,16 +4,18 @@ import { Link, useNavigate } from "react-router-dom";
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
 const Login = () => {
-  const [cpf, setCpf] = useState("");
+  const [loginType, setLoginType] = useState<"comum" | "atendente">("comum");
+  const [identificador, setIdentificador] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIdentificadorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    if (value.toLowerCase().startsWith("at")) {
-      setCpf(value);
+
+    if (loginType === "atendente") {
+      setIdentificador(value);
       return;
     }
 
@@ -24,30 +26,34 @@ const Login = () => {
     value = value.replace(/(\d{3})(\d)/, "$1.$2");
     value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-    setCpf(value);
+    setIdentificador(value);
   };
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro("");
     setLoading(true);
 
-    const cleanCpf = cpf.replace(/\D/g, "");
-    const isAtendente =
-      cpf.toLowerCase() === "atendente" || cleanCpf === "00000000000";
-
     if (senha !== "123456") {
-      setErro("Senha incorreta. (Dica: use 123456)");
+      setErro("Senha incorreta");
       setLoading(false);
       return;
     }
 
-    if (isAtendente) {
+    if (loginType === "atendente") {
+      if (identificador !== "admTdB") {
+        setErro("Usuário de atendente incorreto.");
+        setLoading(false);
+        return;
+      }
       localStorage.setItem("userRole", "ATENDENTE");
       navigate("/dashboard-atendente");
       setLoading(false);
       return;
     }
+
+    const cleanCpf = identificador.replace(/\D/g, "");
 
     if (cleanCpf.length !== 11) {
       setErro("Digite um CPF válido com 11 dígitos.");
@@ -124,17 +130,43 @@ const Login = () => {
         </div>
 
         <form className="space-y-6" onSubmit={handleLogin}>
+          
+          <div className="flex bg-slate-100 p-1 rounded-2xl mb-2">
+            <button
+              type="button"
+              onClick={() => { setLoginType("comum"); setIdentificador(""); setErro(""); }}
+              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
+                loginType === "comum"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Paciente / Dentista
+            </button>
+            <button
+              type="button"
+              onClick={() => { setLoginType("atendente"); setIdentificador(""); setErro(""); }}
+              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
+                loginType === "atendente"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Atendente
+            </button>
+          </div>
+
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
-              CPF do Utilizador
+              {loginType === "atendente" ? "Usuário do Atendente" : "CPF do Utilizador"}
             </label>
             <input
               type="text"
               required
               className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium"
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={handleCpfChange}
+              placeholder={loginType === "atendente" ? "Digite seu usuário" : "000.000.000-00"}
+              value={identificador}
+              onChange={handleIdentificadorChange}
             />
           </div>
 

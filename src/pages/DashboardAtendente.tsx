@@ -171,6 +171,17 @@ const ListaBeneficiarios = ({ aprovados, onExportar }: any) => (
 );
 
 const DashboardAtendente = () => {
+  const [dentistaForm, setDentistaForm] = useState({
+    nmDentista: "",
+    dtNascimento: "",
+    sxDentista: "M",
+    cpfDentista: "",
+    croDentista: "",
+    dsEspecialidade: "",
+  });
+  const [dentistaLoading, setDentistaLoading] = useState(false);
+  const [dentistaErro, setDentistaErro] = useState("");
+  const [dentistaSucesso, setDentistaSucesso] = useState(false);
   const [secaoAtiva, setSecaoAtiva] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
@@ -445,6 +456,11 @@ const DashboardAtendente = () => {
     { id: "beneficiarios", icon: Users, label: "Beneficiários Ativos" },
     { id: "reprovados", icon: UserX, label: "Reprovados" },
     { id: "adicionar-triagem", icon: MapPlus, label: "Adicionar Triagem" },
+    {
+      id: "cadastrar-dentista",
+      icon: Stethoscope,
+      label: "Cadastrar Dentista",
+    }, // Nova seção fixa
   ];
 
   if (loading) {
@@ -460,6 +476,58 @@ const DashboardAtendente = () => {
     );
   }
 
+  const handleCadastroDentista = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDentistaErro("");
+    setDentistaLoading(true);
+    setDentistaSucesso(false);
+
+    // Remove caracteres especiais do CPF antes de enviar para a API
+    const cleanCpf = dentistaForm.cpfDentista.replace(/\D/g, "");
+
+    const payload = {
+      nmDentista: dentistaForm.nmDentista,
+      dtNascimento: dentistaForm.dtNascimento,
+      sxDentista: dentistaForm.sxDentista,
+      cpfDentista: cleanCpf,
+      croDentista: dentistaForm.croDentista,
+      dsEspecialidade: dentistaForm.dsEspecialidade,
+      stDentista: "A", // 'A' de Ativo por padrão
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/dentistas`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        setDentistaSucesso(true);
+        setDentistaForm({
+          nmDentista: "",
+          dtNascimento: "",
+          sxDentista: "M",
+          cpfDentista: "",
+          croDentista: "",
+          dsEspecialidade: "",
+        });
+      } else {
+        const errorText = await response.text();
+        setDentistaErro(
+          errorText || "Ocorreu um erro ao cadastrar o dentista.",
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setDentistaErro("Não foi possível conectar com o servidor do back-end.");
+    } finally {
+      setDentistaLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       <ConfirmModal
@@ -473,14 +541,24 @@ const DashboardAtendente = () => {
         <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 p-8">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-slate-900">Remarcar Triagem</h2>
-              <button onClick={() => setModalRemarcar({ isOpen: false, pb: null })} className="text-slate-400 hover:text-red-500">
+              <h2 className="text-xl font-black text-slate-900">
+                Remarcar Triagem
+              </h2>
+              <button
+                onClick={() => setModalRemarcar({ isOpen: false, pb: null })}
+                className="text-slate-400 hover:text-red-500"
+              >
                 <X size={24} />
               </button>
             </div>
             <div className="space-y-4">
-              <label className="block text-xs font-bold text-slate-700 uppercase">Selecione a Nova Triagem</label>
-              <select id="selectNovaTriagem" className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500">
+              <label className="block text-xs font-bold text-slate-700 uppercase">
+                Selecione a Nova Triagem
+              </label>
+              <select
+                id="selectNovaTriagem"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+              >
                 <option value="">Selecione...</option>
                 {triagens.map((t) => {
                   const id = t.idTriagem || t.id;
@@ -496,15 +574,23 @@ const DashboardAtendente = () => {
               </select>
               <button
                 onClick={async () => {
-                  const select = document.getElementById("selectNovaTriagem") as HTMLSelectElement;
+                  const select = document.getElementById(
+                    "selectNovaTriagem",
+                  ) as HTMLSelectElement;
                   if (!select.value) return;
                   try {
-                    const payload = { ...modalRemarcar.pb, idTriagem: Number(select.value) };
-                    await fetch(`${API_BASE_URL}/pre-beneficiarios/${modalRemarcar.pb.idPreBeneficiario}`, {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    });
+                    const payload = {
+                      ...modalRemarcar.pb,
+                      idTriagem: Number(select.value),
+                    };
+                    await fetch(
+                      `${API_BASE_URL}/pre-beneficiarios/${modalRemarcar.pb.idPreBeneficiario}`,
+                      {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      },
+                    );
                     carregarDados();
                     setModalRemarcar({ isOpen: false, pb: null });
                   } catch (e) {}
@@ -702,7 +788,9 @@ const DashboardAtendente = () => {
               </h2>
               <div className="grid grid-cols-1 gap-4">
                 {preBeneficiariosEmAnaliseFiltrados.map((pb) => {
-                  const triagemValida = triagens.find((t) => (t.idTriagem || t.id) === pb.idTriagem);
+                  const triagemValida = triagens.find(
+                    (t) => (t.idTriagem || t.id) === pb.idTriagem,
+                  );
 
                   return (
                     <div
@@ -723,7 +811,9 @@ const DashboardAtendente = () => {
                       <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
                         {!triagemValida && (
                           <button
-                            onClick={() => setModalRemarcar({ isOpen: true, pb })}
+                            onClick={() =>
+                              setModalRemarcar({ isOpen: true, pb })
+                            }
                             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-blue-200 text-blue-600 px-6 py-4 rounded-xl font-black hover:bg-blue-50 transition-all active:scale-[0.98]"
                           >
                             <CalendarClock size={18} /> Remarcar
@@ -994,6 +1084,194 @@ const DashboardAtendente = () => {
                     SALVAR ENDEREÇO E CRIAR TRIAGEM
                   </button>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* Seção Fixa: Cadastrar Dentista */}
+          {secaoAtiva === "cadastrar-dentista" && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
+              <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+                {/* Cabeçalho da Seção */}
+                <div className="mb-8">
+                  <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                    <Stethoscope className="text-blue-600" size={28} />{" "}
+                    Cadastrar Novo Dentista
+                  </h2>
+                  <p className="text-slate-500 mt-1">
+                    Adicione um profissional parceiro na base BridgeCare.
+                  </p>
+                </div>
+
+                {/* Corpo do Formulário */}
+                {!dentistaSucesso ? (
+                  <form onSubmit={handleCadastroDentista} className="space-y-8">
+                    <div>
+                      <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                        Dados do Profissional
+                      </h3>
+
+                      {/* Grid de 4 Colunas */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* Nome ocupa 2 colunas */}
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            Nome Completo
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                            placeholder="Dr(a). Nome Sobrenome"
+                            value={dentistaForm.nmDentista}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                nmDentista: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* CPF ocupa 2 colunas */}
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            CPF
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={14}
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                            placeholder="000.000.000-00"
+                            value={dentistaForm.cpfDentista}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                cpfDentista: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Data Nasc ocupa 1 coluna */}
+                        <div className="md:col-span-1">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            Data Nasc.
+                          </label>
+                          <input
+                            type="date"
+                            required
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-medium"
+                            value={dentistaForm.dtNascimento}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                dtNascimento: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Gênero ocupa 1 coluna */}
+                        <div className="md:col-span-1">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            Gênero
+                          </label>
+                          <select
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-medium"
+                            value={dentistaForm.sxDentista}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                sxDentista: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                            <option value="O">Outro</option>
+                          </select>
+                        </div>
+
+                        {/* CRO ocupa 1 coluna */}
+                        <div className="md:col-span-1">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            CRO
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                            placeholder="CRO-SP 0000"
+                            value={dentistaForm.croDentista}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                croDentista: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Especialidade ocupa 1 coluna */}
+                        <div className="md:col-span-1">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                            Especialidade
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                            placeholder="Ortodontia..."
+                            value={dentistaForm.dsEspecialidade}
+                            onChange={(e) =>
+                              setDentistaForm({
+                                ...dentistaForm,
+                                dsEspecialidade: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {dentistaErro && (
+                      <div className="bg-red-50 border border-red-200 text-red-500 text-xs font-bold text-center p-3 rounded-xl">
+                        {dentistaErro}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={dentistaLoading}
+                      className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98] mt-4 tracking-wider disabled:opacity-70"
+                    >
+                      {dentistaLoading ? "SALVANDO..." : "SALVAR DENTISTA"}
+                    </button>
+                  </form>
+                ) : (
+                  /* Feedback de Sucesso */
+                  <div className="p-12 text-center flex flex-col items-center justify-center min-h-75">
+                    <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-6 animate-in zoom-in">
+                      <CheckCircle2 size={36} />
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">
+                      Dentista Cadastrado!
+                    </h3>
+                    <p className="text-slate-500">
+                      O profissional foi registrado e vinculado com sucesso na
+                      base de dados.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setDentistaSucesso(false)}
+                      className="mt-6 px-6 py-3 font-bold text-sm text-blue-600 hover:bg-slate-50 rounded-xl transition-colors"
+                    >
+                      Cadastrar outro profissional
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
