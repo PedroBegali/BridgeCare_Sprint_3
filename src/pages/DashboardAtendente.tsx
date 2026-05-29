@@ -90,7 +90,7 @@ const ConfirmModal = ({ isOpen, config, onCancel, onConfirm }: any) => {
   );
 };
 
-const ListaBeneficiarios = ({ aprovados, onExportar }: any) => (
+const ListaBeneficiarios = ({ aprovados, onExportar, onCardClick }: any) => (
   <div className="space-y-6">
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <h3 className="font-bold text-slate-900 text-xl">
@@ -108,7 +108,8 @@ const ListaBeneficiarios = ({ aprovados, onExportar }: any) => (
       {aprovados.map((b: any) => (
         <div
           key={b.idBeneficiario}
-          className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-blue-200 transition-all group"
+          onClick={() => onCardClick && onCardClick(b)}
+          className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-blue-400 cursor-pointer transition-all group active:scale-[0.99]"
         >
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center gap-4">
@@ -116,7 +117,7 @@ const ListaBeneficiarios = ({ aprovados, onExportar }: any) => (
                 <CheckCircle2 size={24} />
               </div>
               <div>
-                <h4 className="font-black text-slate-900 text-lg leading-tight">
+                <h4 className="font-black text-slate-900 text-lg leading-tight group-hover:text-blue-600 transition-colors">
                   {b.nmPreBeneficiario}
                 </h4>
                 <p className="text-sm text-slate-500 mt-1 font-medium">
@@ -135,17 +136,7 @@ const ListaBeneficiarios = ({ aprovados, onExportar }: any) => (
                 Acompanhamento
               </span>
               <span className="text-xs font-bold text-blue-600 flex items-center gap-1.5 bg-blue-50 px-2 py-1 rounded-md">
-                <Stethoscope size={14} /> Atendimento Vinculado
-              </span>
-            </div>
-            <div className="w-full h-px bg-slate-200/60"></div>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                Situação Cadastral
-              </span>
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Check size={14} className="text-green-500" /> Aprovado na
-                Triagem
+                <Stethoscope size={14} /> Ver Histórico e Consultas
               </span>
             </div>
           </div>
@@ -190,6 +181,15 @@ const DashboardAtendente = () => {
   const [beneficiarios, setBeneficiarios] = useState<any[]>([]);
   const [triagens, setTriagens] = useState<any[]>([]);
 
+  const [consultas, setConsultas] = useState<any[]>([]);
+  const [dentistas, setDentistas] = useState<any[]>([]);
+  const [enderecos, setEnderecos] = useState<any[]>([]);
+
+  const [modalBeneficiario, setModalBeneficiario] = useState<{
+    isOpen: boolean;
+    beneficiario: any;
+  }>({ isOpen: false, beneficiario: null });
+
   const [termoBusca, setTermoBusca] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -208,8 +208,26 @@ const DashboardAtendente = () => {
     pb: null,
   });
 
-  const { register, handleSubmit, setValue, reset } = useForm();
+  const { register, handleSubmit, setValue, reset, watch } = useForm<any>({
+    defaultValues: { idProgramaSocial: "1" },
+  });
   const formEnderecoTriagem = useForm();
+
+  const idProgramaSelecionado = watch("idProgramaSocial");
+
+  const formatarDataBR = (dt: any) => {
+    if (!dt) return "--/--/----";
+    if (Array.isArray(dt)) {
+      return `${String(dt[2]).padStart(2, "0")}/${String(dt[1]).padStart(2, "0")}/${dt[0]}`;
+    }
+    if (typeof dt === "string") {
+      const partes = dt.split("-");
+      if (partes.length >= 3) {
+        return `${partes[2].substring(0, 2)}/${partes[1]}/${partes[0]}`;
+      }
+    }
+    return dt;
+  };
 
   const fetchSeguro = async (url: string) => {
     try {
@@ -225,17 +243,31 @@ const DashboardAtendente = () => {
   const carregarDados = async () => {
     setLoading(true);
     try {
-      const [dadosSol, dadosPre, dadosBen, dadosTri] = await Promise.all([
+      const [
+        dadosSol,
+        dadosPre,
+        dadosBen,
+        dadosTri,
+        dadosCons,
+        dadosDent,
+        dadosEnd,
+      ] = await Promise.all([
         fetchSeguro(`${API_BASE_URL}/solicitantes`),
         fetchSeguro(`${API_BASE_URL}/pre-beneficiarios`),
         fetchSeguro(`${API_BASE_URL}/beneficiarios`),
         fetchSeguro(`${API_BASE_URL}/triagens/proximas`),
+        fetchSeguro(`${API_BASE_URL}/consultas`),
+        fetchSeguro(`${API_BASE_URL}/dentistas`),
+        fetchSeguro(`${API_BASE_URL}/enderecos`),
       ]);
 
       setSolicitantes(dadosSol);
       setPreBeneficiarios(dadosPre);
       setBeneficiarios(dadosBen);
       setTriagens(dadosTri);
+      setConsultas(dadosCons || []);
+      setDentistas(dadosDent || []);
+      setEnderecos(dadosEnd || []);
     } catch (error) {
       console.error("Erro inesperado no Promise.all:", error);
     } finally {
@@ -388,6 +420,12 @@ const DashboardAtendente = () => {
 
   const onSubmitCadastro = async (data: any) => {
     try {
+      const isDentistasDoBem = data.idProgramaSocial === "1";
+      const isApoloniasDoBem = data.idProgramaSocial === "2";
+
+      const nomeArquivoTermo = data.termoAutorizacao?.[0]?.name || null;
+      const nomeArquivoBO = data.boletimOcorrencia?.[0]?.name || null;
+
       const payload = {
         nmPreBeneficiario: data.nomeCompleto,
         cpfPreBeneficiario: data.cpf.replace(/\D/g, ""),
@@ -395,9 +433,17 @@ const DashboardAtendente = () => {
         sxPreBeneficiario: data.sexo,
         dsProblemaDentario: data.problemaDentario,
         stSituacao: "AN",
-        idProgramaSocial: 1,
+        idProgramaSocial: Number(data.idProgramaSocial),
         idSolicitante: solicitanteSelecionado.idSolicitante,
         idTriagem: Number(data.idTriagem),
+        vlRendaFamiliar: isDentistasDoBem ? Number(data.rendaFamiliar) : null,
+        stProgramaGov: isDentistasDoBem ? data.programaGov : null,
+        dsEscolaridadeResp: isDentistasDoBem ? data.escolaridade : null,
+        dsTermoAutorizacao:
+          isDentistasDoBem && nomeArquivoTermo ? nomeArquivoTermo : null,
+        dsBoletimOcorrencia:
+          isApoloniasDoBem && nomeArquivoBO ? nomeArquivoBO : null,
+
         endereco: {
           nmLocal: "P",
           nrCep: data.cep.replace(/\D/g, ""),
@@ -482,7 +528,6 @@ const DashboardAtendente = () => {
     setDentistaLoading(true);
     setDentistaSucesso(false);
 
-    // Remove caracteres especiais do CPF antes de enviar para a API
     const cleanCpf = dentistaForm.cpfDentista.replace(/\D/g, "");
 
     const payload = {
@@ -562,9 +607,7 @@ const DashboardAtendente = () => {
                 <option value="">Selecione...</option>
                 {triagens.map((t) => {
                   const id = t.idTriagem || t.id;
-                  const dataFormatada = Array.isArray(t.dtTriagem)
-                    ? `${String(t.dtTriagem[2]).padStart(2, "0")}/${String(t.dtTriagem[1]).padStart(2, "0")}/${t.dtTriagem[0]}`
-                    : t.dtTriagem;
+                  const dataFormatada = formatarDataBR(t.dtTriagem);
                   return (
                     <option key={id} value={id}>
                       {dataFormatada} - {t.nmLogradouro || t.nmLocal}
@@ -696,6 +739,9 @@ const DashboardAtendente = () => {
               <ListaBeneficiarios
                 aprovados={beneficiariosFiltrados}
                 onExportar={exportarRelatorioCSV}
+                onCardClick={(b: any) =>
+                  setModalBeneficiario({ isOpen: true, beneficiario: b })
+                }
               />
             </div>
           )}
@@ -705,6 +751,9 @@ const DashboardAtendente = () => {
               <ListaBeneficiarios
                 aprovados={beneficiariosFiltrados}
                 onExportar={exportarRelatorioCSV}
+                onCardClick={(b: any) =>
+                  setModalBeneficiario({ isOpen: true, beneficiario: b })
+                }
               />
             </div>
           )}
@@ -1088,11 +1137,9 @@ const DashboardAtendente = () => {
             </div>
           )}
 
-          {/* Seção Fixa: Cadastrar Dentista */}
           {secaoAtiva === "cadastrar-dentista" && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
               <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
-                {/* Cabeçalho da Seção */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
                     <Stethoscope className="text-blue-600" size={28} />{" "}
@@ -1103,7 +1150,6 @@ const DashboardAtendente = () => {
                   </p>
                 </div>
 
-                {/* Corpo do Formulário */}
                 {!dentistaSucesso ? (
                   <form onSubmit={handleCadastroDentista} className="space-y-8">
                     <div>
@@ -1111,9 +1157,7 @@ const DashboardAtendente = () => {
                         Dados do Profissional
                       </h3>
 
-                      {/* Grid de 4 Colunas */}
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {/* Nome ocupa 2 colunas */}
                         <div className="md:col-span-2">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             Nome Completo
@@ -1133,7 +1177,6 @@ const DashboardAtendente = () => {
                           />
                         </div>
 
-                        {/* CPF ocupa 2 colunas */}
                         <div className="md:col-span-2">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             CPF
@@ -1154,7 +1197,6 @@ const DashboardAtendente = () => {
                           />
                         </div>
 
-                        {/* Data Nasc ocupa 1 coluna */}
                         <div className="md:col-span-1">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             Data Nasc.
@@ -1173,7 +1215,6 @@ const DashboardAtendente = () => {
                           />
                         </div>
 
-                        {/* Gênero ocupa 1 coluna */}
                         <div className="md:col-span-1">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             Gênero
@@ -1194,7 +1235,6 @@ const DashboardAtendente = () => {
                           </select>
                         </div>
 
-                        {/* CRO ocupa 1 coluna */}
                         <div className="md:col-span-1">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             CRO
@@ -1214,7 +1254,6 @@ const DashboardAtendente = () => {
                           />
                         </div>
 
-                        {/* Especialidade ocupa 1 coluna */}
                         <div className="md:col-span-1">
                           <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
                             Especialidade
@@ -1251,7 +1290,6 @@ const DashboardAtendente = () => {
                     </button>
                   </form>
                 ) : (
-                  /* Feedback de Sucesso */
                   <div className="p-12 text-center flex flex-col items-center justify-center min-h-75">
                     <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-6 animate-in zoom-in">
                       <CheckCircle2 size={36} />
@@ -1368,6 +1406,64 @@ const DashboardAtendente = () => {
                           </div>
                         </div>
                       </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2 mt-8">
+                          Programa Social
+                        </h3>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Selecione o Programa</label>
+                            <select
+                              {...register("idProgramaSocial", { required: true })}
+                              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-medium"
+                            >
+                              <option value="1">Dentistas do Bem</option>
+                              <option value="2">Apolônias do Bem</option>
+                            </select>
+                          </div>
+
+                          {idProgramaSelecionado === "1" && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in">
+                              <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Renda Familiar (R$)</label>
+                                <input type="number" step="0.01" {...register("rendaFamiliar")} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500" placeholder="Ex: 2500.00" />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Escolaridade do Responsável</label>
+                                <select {...register("escolaridade")} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500">
+                                  <option value="Fundamental Incompleto">Ensino Fundamental Incompleto</option>
+                                  <option value="Fundamental Completo">Ensino Fundamental Completo</option>
+                                  <option value="Médio Incompleto">Ensino Médio Incompleto</option>
+                                  <option value="Médio Completo">Ensino Médio Completo</option>
+                                  <option value="Superior">Ensino Superior</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Possui Programa do Governo?</label>
+                                <div className="flex gap-6 p-2 bg-slate-50 rounded-2xl border border-slate-100 px-6 py-4">
+                                  <label className="flex items-center gap-3 text-sm font-bold cursor-pointer">
+                                    <input type="radio" value="S" {...register("programaGov")} className="w-5 h-5 text-blue-600" /> Sim
+                                  </label>
+                                  <label className="flex items-center gap-3 text-sm font-bold cursor-pointer">
+                                    <input type="radio" value="N" defaultChecked {...register("programaGov")} className="w-5 h-5 text-blue-600" /> Não
+                                  </label>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Anexar Termo de Autorização</label>
+                                <input type="file" accept=".pdf,image/*" {...register("termoAutorizacao")} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                              </div>
+                            </div>
+                          )}
+
+                          {idProgramaSelecionado === "2" && (
+                            <div className="animate-in fade-in">
+                              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Anexar Boletim de Ocorrência</label>
+                              <input type="file" accept=".pdf,image/*" {...register("boletimOcorrencia")} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
                       <div>
                         <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2 mt-8">
@@ -1470,12 +1566,7 @@ const DashboardAtendente = () => {
                     <div className="space-y-4">
                       {triagens.map((triagem) => {
                         const id = triagem.idTriagem || triagem.id;
-
-                        const dataFormatada = Array.isArray(triagem.dtTriagem)
-                          ? `${String(triagem.dtTriagem[2]).padStart(2, "0")}/${String(triagem.dtTriagem[1]).padStart(2, "0")}/${triagem.dtTriagem[0]}`
-                          : typeof triagem.dtTriagem === "string"
-                            ? triagem.dtTriagem
-                            : "Data não informada";
+                        const dataFormatada = formatarDataBR(triagem.dtTriagem);
 
                         const horaIn = Array.isArray(triagem.hrInicial)
                           ? `${String(triagem.hrInicial[0]).padStart(2, "0")}:${String(triagem.hrInicial[1]).padStart(2, "0")}`
@@ -1572,6 +1663,284 @@ const DashboardAtendente = () => {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {modalBeneficiario.isOpen && modalBeneficiario.beneficiario && (
+          <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95">
+              <div className="flex justify-between items-center p-6 md:px-8 border-b border-slate-100 bg-slate-50 shrink-0">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                    <Users className="text-blue-600" size={28} /> Painel de
+                    Tratamento
+                  </h2>
+                  <p className="text-sm text-slate-500 font-medium mt-1">
+                    Paciente:{" "}
+                    <strong className="text-slate-700">
+                      {modalBeneficiario.beneficiario.nmPreBeneficiario}
+                    </strong>{" "}
+                    (CPF: {modalBeneficiario.beneficiario.cpfPreBeneficiario})
+                  </p>
+                </div>
+                <button
+                  onClick={() =>
+                    setModalBeneficiario({ isOpen: false, beneficiario: null })
+                  }
+                  className="p-3 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-full shadow-sm hover:shadow-md"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-8 overflow-y-auto bg-slate-50 flex-1">
+                {(() => {
+                  const hoje = new Date();
+                  hoje.setHours(0, 0, 0, 0);
+
+                  const pacienteConsultas = consultas.filter(
+                    (c) =>
+                      c.idBeneficiario ===
+                      modalBeneficiario.beneficiario.idBeneficiario,
+                  );
+
+                  const parseData = (dt: any) => {
+                    if (!dt) return new Date(0);
+                    if (Array.isArray(dt))
+                      return new Date(dt[0], dt[1] - 1, dt[2]);
+                    const partes = dt.split("-");
+                    if (partes.length === 3)
+                      return new Date(
+                        Number(partes[0]),
+                        Number(partes[1]) - 1,
+                        Number(partes[2]),
+                      );
+                    return new Date(dt);
+                  };
+
+                  const formatTime = (hr: any) => {
+                    if (!hr) return "--:--";
+                    if (Array.isArray(hr))
+                      return `${String(hr[0]).padStart(2, "0")}:${String(hr[1]).padStart(2, "0")}`;
+                    if (typeof hr === "string") return hr.substring(0, 5);
+                    return hr;
+                  };
+
+                  const passadas = pacienteConsultas
+                    .filter((c) => parseData(c.dtConsulta) < hoje)
+                    .sort(
+                      (a, b) =>
+                        parseData(b.dtConsulta).getTime() -
+                        parseData(a.dtConsulta).getTime(),
+                    );
+                  const futuras = pacienteConsultas
+                    .filter((c) => parseData(c.dtConsulta) >= hoje)
+                    .sort(
+                      (a, b) =>
+                        parseData(a.dtConsulta).getTime() -
+                        parseData(b.dtConsulta).getTime(),
+                    );
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                          <CalendarClock className="text-blue-500" size={22} />{" "}
+                          Próximas Consultas
+                        </h3>
+                        <div className="space-y-4">
+                          {futuras.length === 0 ? (
+                            <p className="text-sm text-slate-500 font-medium bg-white p-6 rounded-2xl border border-slate-200 text-center">
+                              O paciente não possui retornos agendados.
+                            </p>
+                          ) : (
+                            futuras.map((c) => {
+                              const dataFormatada = formatarDataBR(
+                                c.dtConsulta,
+                              );
+
+                              const dentistaConsulta = dentistas.find(
+                                (d) =>
+                                  Number(
+                                    d.idDentista || d.id_dentista || d.id,
+                                  ) === Number(c.idDentista || c.id_dentista),
+                              );
+                              const nomeDentista = dentistaConsulta
+                                ? dentistaConsulta.nmDentista ||
+                                  "Sem Nome Cadastrado"
+                                : "Profissional não encontrado";
+
+                              const enderecoConsulta = enderecos.find(
+                                (e) =>
+                                  Number(
+                                    e.idEndereco || e.id_endereco || e.id,
+                                  ) === Number(c.idEndereco || c.id_endereco),
+                              );
+                              const localConsulta = enderecoConsulta
+                                ? enderecoConsulta.nmLogradouro
+                                  ? `${enderecoConsulta.nmLogradouro}, ${enderecoConsulta.nrLogradouro} - ${enderecoConsulta.nmBairro}`
+                                  : enderecoConsulta.nmLocal
+                                : "Local não informado";
+
+                              return (
+                                <div
+                                  key={c.idConsulta}
+                                  className="bg-white p-5 rounded-2xl border-l-4 border-blue-500 shadow-sm relative overflow-hidden group"
+                                >
+                                  <div className="absolute top-0 right-0 p-4 opacity-5">
+                                    <CalendarClock size={60} />
+                                  </div>
+                                  <div className="flex justify-between items-center mb-3">
+                                    <span className="font-black text-slate-700 text-lg">
+                                      {dataFormatada}
+                                    </span>
+                                    <span className="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-widest">
+                                      Agendada
+                                    </span>
+                                  </div>
+
+                                  <div className="flex flex-col gap-1.5 mt-4 mb-2 bg-slate-50 p-3 rounded-xl border border-slate-100 relative z-10">
+                                    <p className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                      <Clock
+                                        size={14}
+                                        className="text-blue-400"
+                                      />
+                                      <strong className="text-slate-700">
+                                        Horário:
+                                      </strong>{" "}
+                                      {formatTime(c.hrConsulta)}
+                                    </p>
+                                    <p className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                      <Stethoscope
+                                        size={14}
+                                        className="text-slate-400"
+                                      />
+                                      <strong className="text-slate-700">
+                                        Dentista:
+                                      </strong>{" "}
+                                      {nomeDentista}
+                                    </p>
+                                    <p className="flex items-start gap-2 text-xs text-slate-600 font-medium">
+                                      <MapPin
+                                        size={14}
+                                        className="text-slate-400 shrink-0 mt-0.5"
+                                      />
+                                      <strong className="text-slate-700">
+                                        Local:
+                                      </strong>{" "}
+                                      {localConsulta}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                          <Stethoscope className="text-emerald-500" size={22} />{" "}
+                          Histórico e Prontuários
+                        </h3>
+                        <div className="space-y-4">
+                          {passadas.length === 0 ? (
+                            <p className="text-sm text-slate-500 font-medium bg-white p-6 rounded-2xl border border-slate-200 text-center">
+                              Nenhum histórico de consulta clínica preenchido.
+                            </p>
+                          ) : (
+                            passadas.map((c) => {
+                              const dataFormatada = formatarDataBR(
+                                c.dtConsulta,
+                              );
+                              const recomendacao =
+                                c.dsRecomendacao || c.ds_recomendacao;
+
+                              const dentistaConsulta = dentistas.find(
+                                (d) => (d.idDentista || d.id) === c.idDentista,
+                              );
+                              const nomeDentista = dentistaConsulta
+                                ? dentistaConsulta.nmDentista
+                                : "Profissional não encontrado";
+
+                              const enderecoConsulta = enderecos.find(
+                                (e) => (e.idEndereco || e.id) === c.idEndereco,
+                              );
+                              const localConsulta = enderecoConsulta
+                                ? enderecoConsulta.nmLogradouro
+                                  ? `${enderecoConsulta.nmLogradouro}, ${enderecoConsulta.nrLogradouro} - ${enderecoConsulta.nmBairro}`
+                                  : enderecoConsulta.nmLocal
+                                : "Local não informado";
+
+                              return (
+                                <div
+                                  key={c.idConsulta}
+                                  className="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm"
+                                >
+                                  <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-black text-slate-700 text-lg">
+                                        {dataFormatada}
+                                      </span>
+                                    </div>
+                                    <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-widest">
+                                      Concluída
+                                    </span>
+                                  </div>
+
+                                  <div className="flex flex-col gap-1.5 mb-4 text-xs text-slate-500 font-medium pb-4 border-b border-slate-100">
+                                    <p className="flex items-center gap-2">
+                                      <Stethoscope
+                                        size={14}
+                                        className="text-emerald-400"
+                                      />{" "}
+                                      Atendido por:{" "}
+                                      <strong className="text-slate-700">
+                                        {nomeDentista}
+                                      </strong>
+                                    </p>
+                                    <p className="flex items-start gap-2">
+                                      <MapPin
+                                        size={14}
+                                        className="text-slate-400 shrink-0"
+                                      />{" "}
+                                      Local:{" "}
+                                      <strong className="text-slate-700">
+                                        {localConsulta}
+                                      </strong>
+                                    </p>
+                                  </div>
+
+                                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-3">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                                      Relatório Clínico (Prontuário)
+                                    </p>
+                                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                                      {c.dsProntuario ||
+                                        "Sem registro escrito no prontuário."}
+                                    </p>
+                                  </div>
+
+                                  {recomendacao && (
+                                    <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">
+                                        Prescrição / Recomendação
+                                      </p>
+                                      <p className="text-sm text-amber-800 leading-relaxed font-medium">
+                                        {recomendacao}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           </div>
         )}
