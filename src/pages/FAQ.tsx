@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Mail,
   Handshake,
@@ -7,9 +8,12 @@ import {
   Clock,
   ShieldCheck,
   Plus,
+  ArrowLeft,
 } from "lucide-react";
 
 function FAQ() {
+  const navigate = useNavigate();
+
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const perguntas = [
@@ -50,7 +54,17 @@ function FAQ() {
   };
 
   return (
-    <main className="py-12 px-6 bg-slate-50 min-h-[70vh]">
+    <main className="py-16 px-6 bg-slate-50 min-h-[70vh]">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group"
+      >
+        <ArrowLeft
+          size={18}
+          className="group-hover:-translate-x-1 transition-transform"
+        />
+        Voltar
+      </button>
       <div className="container mx-auto max-w-3xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">

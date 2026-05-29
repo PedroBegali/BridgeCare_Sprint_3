@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
@@ -11,7 +12,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleIdentificadorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIdentificadorChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     let value = e.target.value;
 
     if (loginType === "atendente") {
@@ -28,7 +31,6 @@ const Login = () => {
 
     setIdentificador(value);
   };
-
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,95 +122,123 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-[80vh] flex items-center justify-center bg-slate-50 px-6 py-12">
-      <div className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/60 border border-slate-100">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-black text-slate-900 mb-2">Bem-vindo</h2>
-          <p className="text-slate-500 text-sm italic">
-            Acesse sua conta BridgeCare
-          </p>
-        </div>
+    <main className="min-h-[80vh] flex flex-col bg-slate-50 px-6 py-16">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group w-fit"
+      >
+        <ArrowLeft
+          size={18}
+          className="group-hover:-translate-x-1 transition-transform"
+        />
+        Voltar
+      </button>
+      <div className="w-full max-w-md mx-auto">
 
-        <form className="space-y-6" onSubmit={handleLogin}>
-          
-          <div className="flex bg-slate-100 p-1 rounded-2xl mb-2">
-            <button
-              type="button"
-              onClick={() => { setLoginType("comum"); setIdentificador(""); setErro(""); }}
-              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
-                loginType === "comum"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              Paciente / Dentista
-            </button>
-            <button
-              type="button"
-              onClick={() => { setLoginType("atendente"); setIdentificador(""); setErro(""); }}
-              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
-                loginType === "atendente"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              Atendente
-            </button>
+        <div className="w-full bg-white rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/60 border border-slate-100">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-black text-slate-900 mb-2">
+              Bem-vindo
+            </h2>
+            <p className="text-slate-500 text-sm italic">
+              Acesse sua conta BridgeCare
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
-              {loginType === "atendente" ? "Usuário do Atendente" : "CPF do Utilizador"}
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium"
-              placeholder={loginType === "atendente" ? "Digite seu usuário" : "000.000.000-00"}
-              value={identificador}
-              onChange={handleIdentificadorChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
-              Senha
-            </label>
-            <input
-              type="password"
-              required
-              className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              placeholder="••••••"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-            />
-          </div>
-
-          {erro && (
-            <div className="bg-red-50 border border-red-200 text-red-500 text-xs font-bold text-center p-3 rounded-xl animate-in zoom-in">
-              {erro}
+          <form className="space-y-6" onSubmit={handleLogin}>
+            <div className="flex bg-slate-100 p-1 rounded-2xl mb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginType("comum");
+                  setIdentificador("");
+                  setErro("");
+                }}
+                className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
+                  loginType === "comum"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                Paciente / Dentista
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginType("atendente");
+                  setIdentificador("");
+                  setErro("");
+                }}
+                className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
+                  loginType === "atendente"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                Atendente
+              </button>
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 active:scale-[0.98] transition-all tracking-widest uppercase text-sm disabled:opacity-70 flex justify-center"
-          >
-            {loading ? "VERIFICANDO..." : "ENTRAR NO PORTAL"}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
+                {loginType === "atendente"
+                  ? "Usuário do Atendente"
+                  : "CPF do Utilizador"}
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium"
+                placeholder={
+                  loginType === "atendente"
+                    ? "Digite seu usuário"
+                    : "000.000.000-00"
+                }
+                value={identificador}
+                onChange={handleIdentificadorChange}
+              />
+            </div>
 
-        <div className="mt-8 pt-8 border-t border-slate-50 text-center">
-          <p className="text-xs text-slate-400 font-medium">
-            Dúvidas?{" "}
-            <Link
-              to="/contato"
-              className="text-blue-500 cursor-pointer hover:underline"
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
+                Senha
+              </label>
+              <input
+                type="password"
+                required
+                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                placeholder="••••••"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+
+            {erro && (
+              <div className="bg-red-50 border border-red-200 text-red-500 text-xs font-bold text-center p-3 rounded-xl animate-in zoom-in">
+                {erro}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 active:scale-[0.98] transition-all tracking-widest uppercase text-sm disabled:opacity-70 flex justify-center"
             >
-              Fale com o suporte
-            </Link>
-          </p>
+              {loading ? "VERIFICANDO..." : "ENTRAR NO PORTAL"}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-8 border-t border-slate-50 text-center">
+            <p className="text-xs text-slate-400 font-medium">
+              Dúvidas?{" "}
+              <Link
+                to="/contato"
+                className="text-blue-500 cursor-pointer hover:underline"
+              >
+                Fale com o suporte
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

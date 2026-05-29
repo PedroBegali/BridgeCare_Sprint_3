@@ -3,6 +3,8 @@ import perfilPedro from "../assets/pedroPerfil.jpg";
 import perfilAlan from "../assets/alanPerfil.jpeg";
 import githubIcon from "../assets/github_icon.png";
 import linkedlnIcon from "../assets/linkedIn_icon.png";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const SocialLink = ({
   href,
@@ -63,6 +65,8 @@ const MembroCard = ({ membro }: { membro: any }) => (
 );
 
 function QuemSomos() {
+  const navigate = useNavigate();
+
   const integrantes = [
     {
       nome: "Pedro Begali Campos",
@@ -89,6 +93,16 @@ function QuemSomos() {
 
   return (
     <main className="min-h-screen bg-slate-50 py-16 px-6">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group"
+      >
+        <ArrowLeft
+          size={18}
+          className="group-hover:-translate-x-1 transition-transform"
+        />
+        Voltar
+      </button>
       <section className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-slate-900 mb-4">

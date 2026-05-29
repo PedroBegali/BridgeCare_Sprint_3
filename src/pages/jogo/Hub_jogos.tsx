@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
-import { Brain, Sparkles, HelpCircle } from "lucide-react";
+import { Brain, Sparkles, HelpCircle, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const MiniJogos = () => {
+  const navigate = useNavigate();
+
   const games = [
     {
       id: "memoria",
@@ -31,6 +34,13 @@ const MiniJogos = () => {
 
   return (
     <main className="py-16 px-6 bg-gray-100 min-h-screen">
+      <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group"
+        >
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          Voltar
+        </button>
       <section className="container mx-auto max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">

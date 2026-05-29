@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { History, DollarSign, Target, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { History, DollarSign, Target, Sparkles, ArrowLeft } from "lucide-react";
 import pessoa_smartPhone from "../assets/pessoa_smartphone.png";
 import planejamento from "../assets/planejamento.png";
 
 function SobreProjeto() {
+  const navigate = useNavigate();
+
   const pilares = [
     {
       icon: <History size={40} />,
@@ -24,7 +27,17 @@ function SobreProjeto() {
 
   return (
     <main className="min-h-screen bg-white selection:bg-sky-100 selection:text-sky-600">
-      <section className="relative bg-slate-900 pt-32 pb-48 overflow-hidden">
+      <section className="relative bg-slate-900 pt-16 pb-48 overflow-hidden">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 px-6 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group"
+        >
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Voltar
+        </button>
         <div className="container mx-auto px-6 text-center relative z-10">
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
             Sobre o <span className="text-sky-400">Projeto</span>

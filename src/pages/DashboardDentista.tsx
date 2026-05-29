@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   Search,
@@ -15,7 +16,8 @@ import {
   Send,
   MessageSquarePlus,
   CalendarPlus,
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
 } from "lucide-react";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
@@ -42,14 +44,25 @@ const ConfirmModal = ({ isOpen, config, onCancel, onConfirm }: any) => {
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 text-orange-600 bg-orange-100">
             <AlertTriangle size={40} />
           </div>
-          <h3 className="text-2xl font-black text-slate-900 mb-2">{config.title}</h3>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">
+            {config.title}
+          </h3>
           <p className="text-slate-500 leading-relaxed">{config.message}</p>
         </div>
         <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
-          <button onClick={onCancel} className="flex-1 px-6 py-3 font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-colors">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-6 py-3 font-bold text-slate-500 hover:bg-slate-200 rounded-xl transition-colors"
+          >
             Cancelar
           </button>
-          <button onClick={() => { onConfirm(); onCancel(); }} className="flex-1 px-6 py-3 font-black text-white rounded-xl shadow-lg transition-all active:scale-95 bg-blue-600 hover:bg-blue-700">
+          <button
+            onClick={() => {
+              onConfirm();
+              onCancel();
+            }}
+            className="flex-1 px-6 py-3 font-black text-white rounded-xl shadow-lg transition-all active:scale-95 bg-blue-600 hover:bg-blue-700"
+          >
             Confirmar
           </button>
         </div>
@@ -99,13 +112,16 @@ const CardAgenda = ({
 
   return (
     <>
-      <ConfirmModal 
-        isOpen={modalConfirmRec} 
-        config={{title: "Enviar Recomendação", message: `Deseja enviar a recomendação "${recomendacao}" para o paciente ${pacienteNome}?`}} 
-        onCancel={() => setModalConfirmRec(false)} 
-        onConfirm={enviarRecomendacao} 
+      <ConfirmModal
+        isOpen={modalConfirmRec}
+        config={{
+          title: "Enviar Recomendação",
+          message: `Deseja enviar a recomendação "${recomendacao}" para o paciente ${pacienteNome}?`,
+        }}
+        onCancel={() => setModalConfirmRec(false)}
+        onConfirm={enviarRecomendacao}
       />
-      
+
       <div className="flex flex-col p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group gap-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
           <div className="flex items-center gap-4">
@@ -117,7 +133,8 @@ const CardAgenda = ({
                 {pacienteNome}
               </h4>
               <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                <MapPin size={12} className="text-red-400" /> {enderecoFormatado}
+                <MapPin size={12} className="text-red-400" />{" "}
+                {enderecoFormatado}
               </p>
             </div>
           </div>
@@ -177,6 +194,7 @@ const DashboardDentista = () => {
 
   const [materialEnviado, setMaterialEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -264,8 +282,7 @@ const DashboardDentista = () => {
       } else {
         alert("Falha ao atualizar o status na base de dados.");
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const getNomeBeneficiario = (idBeneficiario: number) => {
@@ -338,8 +355,7 @@ const DashboardDentista = () => {
       } else {
         alert("Erro ao salvar prontuário.");
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const onSubmitNovaConsulta = async (data: any) => {
@@ -366,8 +382,7 @@ const DashboardDentista = () => {
       } else {
         alert("Erro ao agendar consulta. Verifique os dados.");
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const onSubmitMaterial = async (e: any) => {
@@ -392,6 +407,11 @@ const DashboardDentista = () => {
     }
   };
 
+  const handleSair = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -407,15 +427,14 @@ const DashboardDentista = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      
-      <ConfirmModal 
-        isOpen={modalConfirmStatus} 
+      <ConfirmModal
+        isOpen={modalConfirmStatus}
         config={{
-          title: "Alterar Status", 
-          message: `Tem certeza que deseja alterar seu status para ${estaAtivo ? 'Ausente' : 'Recebendo Pacientes'}?`
-        }} 
-        onCancel={() => setModalConfirmStatus(false)} 
-        onConfirm={handleToggleStatus} 
+          title: "Alterar Status",
+          message: `Tem certeza que deseja alterar seu status para ${estaAtivo ? "Ausente" : "Recebendo Pacientes"}?`,
+        }}
+        onCancel={() => setModalConfirmStatus(false)}
+        onConfirm={handleToggleStatus}
       />
 
       <aside className="w-full md:w-72 bg-white border-r border-slate-200 flex flex-col">
@@ -444,8 +463,9 @@ const DashboardDentista = () => {
             </button>
           ))}
         </nav>
+        
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+        <div className="px-6 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold">
               <Stethoscope size={20} />
@@ -464,6 +484,15 @@ const DashboardDentista = () => {
               </p>
             </div>
           </div>
+        </div>
+        <div className="p-4 border-t border-slate-100 mt-auto">
+          <button
+            onClick={handleSair}
+            className="flex items-center gap-3 px-4 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm"
+          >
+            <LogOut size={18} />
+            Sair da Conta
+          </button>
         </div>
       </aside>
 
@@ -551,7 +580,9 @@ const DashboardDentista = () => {
                       />
                     ))}
                     {agendaFiltrada.length === 0 && (
-                      <p className="text-sm text-slate-500">Agenda livre ou busca não encontrada.</p>
+                      <p className="text-sm text-slate-500">
+                        Agenda livre ou busca não encontrada.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -711,8 +742,7 @@ const DashboardDentista = () => {
                     </select>
                     {enderecosConsultorios.length === 0 && (
                       <p className="text-xs text-red-500 mt-1">
-                        Atenção: Não há endereços de Consultórios na
-                        base.
+                        Atenção: Não há endereços de Consultórios na base.
                       </p>
                     )}
                   </div>
@@ -900,8 +930,7 @@ const DashboardDentista = () => {
                     ></textarea>
                     {errors.ds_prontuario && (
                       <span className="text-red-500 text-xs mt-1 block">
-                        O prontuário deve ter no mínimo 10
-                        caracteres.
+                        O prontuário deve ter no mínimo 10 caracteres.
                       </span>
                     )}
                   </div>
@@ -931,8 +960,8 @@ const DashboardDentista = () => {
                     Prontuário Salvo!
                   </h3>
                   <p className="text-slate-500">
-                    O histórico clínico do paciente foi atualizado com sucesso na
-                    base de dados.
+                    O histórico clínico do paciente foi atualizado com sucesso
+                    na base de dados.
                   </p>
                 </div>
               )}

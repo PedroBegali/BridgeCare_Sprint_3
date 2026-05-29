@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { MapPin, Mail, CheckCircle2, Send } from "lucide-react";
+import { MapPin, Mail, CheckCircle2, Send, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type ContatoFormData = {
   nome: string;
@@ -10,6 +11,8 @@ type ContatoFormData = {
 };
 
 const Contato = () => {
+  const navigate = useNavigate();
+
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
@@ -42,15 +45,16 @@ const Contato = () => {
       });
 
       setEnviado(true);
-      
+
       setTimeout(() => {
         setEnviado(false);
         reset();
       }, 4000);
-
     } catch (error) {
       console.error("Erro ao enviar contato:", error);
-      alert("Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.");
+      alert(
+        "Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.",
+      );
     } finally {
       setEnviando(false);
     }
@@ -58,6 +62,16 @@ const Contato = () => {
 
   return (
     <main className="py-16 px-6 bg-slate-50 min-h-screen">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors mb-6 group"
+      >
+        <ArrowLeft
+          size={18}
+          className="group-hover:-translate-x-1 transition-transform"
+        />
+        Voltar
+      </button>
       <section className="container mx-auto max-w-5xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <div className="space-y-8">
@@ -221,7 +235,9 @@ const Contato = () => {
                 type="submit"
                 disabled={enviando}
                 className={`w-full text-white font-bold py-4 rounded-xl active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 ${
-                  enviando ? "bg-blue-400 cursor-not-allowed shadow-none" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                  enviando
+                    ? "bg-blue-400 cursor-not-allowed shadow-none"
+                    : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
                 }`}
               >
                 {enviando ? (

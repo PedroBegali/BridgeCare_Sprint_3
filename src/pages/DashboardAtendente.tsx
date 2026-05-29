@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 import {
   UserPlus,
@@ -20,6 +21,7 @@ import {
   MapPlus,
   Check,
   AlertTriangle,
+  LogOut,
 } from "lucide-react";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
@@ -184,6 +186,7 @@ const DashboardAtendente = () => {
   const [consultas, setConsultas] = useState<any[]>([]);
   const [dentistas, setDentistas] = useState<any[]>([]);
   const [enderecos, setEnderecos] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   const [modalBeneficiario, setModalBeneficiario] = useState<{
     isOpen: boolean;
@@ -506,7 +509,7 @@ const DashboardAtendente = () => {
       id: "cadastrar-dentista",
       icon: Stethoscope,
       label: "Cadastrar Dentista",
-    }, // Nova seção fixa
+    },
   ];
 
   if (loading) {
@@ -571,6 +574,11 @@ const DashboardAtendente = () => {
     } finally {
       setDentistaLoading(false);
     }
+  };
+
+  const handleSair = () => {
+    localStorage.clear();
+    navigate("/");
   };
 
   return (
@@ -673,6 +681,15 @@ const DashboardAtendente = () => {
             </button>
           ))}
         </nav>
+        <div className="p-4 border-t border-slate-100 mt-auto">
+          <button
+            onClick={handleSair}
+            className="flex items-center gap-3 px-4 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm"
+          >
+            <LogOut size={18} />
+            Sair do Sistema
+          </button>
+        </div>
       </aside>
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -1412,9 +1429,13 @@ const DashboardAtendente = () => {
                         </h3>
                         <div className="space-y-6">
                           <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Selecione o Programa</label>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                              Selecione o Programa
+                            </label>
                             <select
-                              {...register("idProgramaSocial", { required: true })}
+                              {...register("idProgramaSocial", {
+                                required: true,
+                              })}
                               className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 font-medium"
                             >
                               <option value="1">Dentistas do Bem</option>
@@ -1425,41 +1446,93 @@ const DashboardAtendente = () => {
                           {idProgramaSelecionado === "1" && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in">
                               <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Renda Familiar (R$)</label>
-                                <input type="number" step="0.01" {...register("rendaFamiliar")} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500" placeholder="Ex: 2500.00" />
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                                  Renda Familiar (R$)
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  {...register("rendaFamiliar")}
+                                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                                  placeholder="Ex: 2500.00"
+                                />
                               </div>
                               <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Escolaridade do Responsável</label>
-                                <select {...register("escolaridade")} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500">
-                                  <option value="Fundamental Incompleto">Ensino Fundamental Incompleto</option>
-                                  <option value="Fundamental Completo">Ensino Fundamental Completo</option>
-                                  <option value="Médio Incompleto">Ensino Médio Incompleto</option>
-                                  <option value="Médio Completo">Ensino Médio Completo</option>
-                                  <option value="Superior">Ensino Superior</option>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                                  Escolaridade do Responsável
+                                </label>
+                                <select
+                                  {...register("escolaridade")}
+                                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+                                >
+                                  <option value="Fundamental Incompleto">
+                                    Ensino Fundamental Incompleto
+                                  </option>
+                                  <option value="Fundamental Completo">
+                                    Ensino Fundamental Completo
+                                  </option>
+                                  <option value="Médio Incompleto">
+                                    Ensino Médio Incompleto
+                                  </option>
+                                  <option value="Médio Completo">
+                                    Ensino Médio Completo
+                                  </option>
+                                  <option value="Superior">
+                                    Ensino Superior
+                                  </option>
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Possui Programa do Governo?</label>
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                                  Possui Programa do Governo?
+                                </label>
                                 <div className="flex gap-6 p-2 bg-slate-50 rounded-2xl border border-slate-100 px-6 py-4">
                                   <label className="flex items-center gap-3 text-sm font-bold cursor-pointer">
-                                    <input type="radio" value="S" {...register("programaGov")} className="w-5 h-5 text-blue-600" /> Sim
+                                    <input
+                                      type="radio"
+                                      value="S"
+                                      {...register("programaGov")}
+                                      className="w-5 h-5 text-blue-600"
+                                    />{" "}
+                                    Sim
                                   </label>
                                   <label className="flex items-center gap-3 text-sm font-bold cursor-pointer">
-                                    <input type="radio" value="N" defaultChecked {...register("programaGov")} className="w-5 h-5 text-blue-600" /> Não
+                                    <input
+                                      type="radio"
+                                      value="N"
+                                      defaultChecked
+                                      {...register("programaGov")}
+                                      className="w-5 h-5 text-blue-600"
+                                    />{" "}
+                                    Não
                                   </label>
                                 </div>
                               </div>
                               <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Anexar Termo de Autorização</label>
-                                <input type="file" accept=".pdf,image/*" {...register("termoAutorizacao")} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                                  Anexar Termo de Autorização
+                                </label>
+                                <input
+                                  type="file"
+                                  accept=".pdf,image/*"
+                                  {...register("termoAutorizacao")}
+                                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
                               </div>
                             </div>
                           )}
 
                           {idProgramaSelecionado === "2" && (
                             <div className="animate-in fade-in">
-                              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Anexar Boletim de Ocorrência</label>
-                              <input type="file" accept=".pdf,image/*" {...register("boletimOcorrencia")} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">
+                                Anexar Boletim de Ocorrência
+                              </label>
+                              <input
+                                type="file"
+                                accept=".pdf,image/*"
+                                {...register("boletimOcorrencia")}
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                              />
                             </div>
                           )}
                         </div>

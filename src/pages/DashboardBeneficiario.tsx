@@ -347,7 +347,7 @@ const DashboardBeneficiario = () => {
         </nav>
 
         <div className="p-6 border-t border-slate-100 bg-slate-50/50">
-          <button onClick={handleLogout} className="flex items-center gap-3 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 w-full text-slate-500 hover:text-red-500 transition-colors font-bold text-sm">
             <LogOut size={18} /> Sair da Conta
           </button>
         </div>
