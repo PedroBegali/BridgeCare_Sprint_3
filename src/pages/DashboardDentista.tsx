@@ -80,12 +80,41 @@ const CardAgenda = ({
   hora,
   onRecarregar,
   onAbrirChat,
+  isChatAberto,
 }: any) => {
   const [recomendacao, setRecomendacao] = useState(
     consulta.dsRecomendacao || "",
   );
   const [enviando, setEnviando] = useState(false);
   const [modalConfirmRec, setModalConfirmRec] = useState(false);
+  const [mensagensNaoLidas, setMensagensNaoLidas] = useState(0);
+
+  const idDentista = consulta.idDentista || Number(localStorage.getItem("userId")) || 1;
+
+  useEffect(() => {
+    const verificarMensagens = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/mensagens/${idDentista}/${consulta.idBeneficiario}`);
+        if (res.ok) {
+          const msgs = await res.json();
+          const recebidas = msgs.filter((m: any) => m.enviadoPor === "B").length;
+          
+          if (isChatAberto) {
+            localStorage.setItem(`chat_read_${idDentista}_${consulta.idBeneficiario}`, recebidas.toString());
+            setMensagensNaoLidas(0);
+          } else {
+            const lidas = Number(localStorage.getItem(`chat_read_${idDentista}_${consulta.idBeneficiario}`) || 0);
+            const naoLidas = recebidas - lidas;
+            setMensagensNaoLidas(naoLidas > 0 ? naoLidas : 0);
+          }
+        }
+      } catch (e) {}
+    };
+
+    verificarMensagens();
+    const interval = setInterval(verificarMensagens, 5000);
+    return () => clearInterval(interval);
+  }, [consulta.idDentista, consulta.idBeneficiario, isChatAberto, idDentista]);
 
   const enviarRecomendacao = async () => {
     if (!recomendacao.trim()) return;
@@ -147,11 +176,16 @@ const CardAgenda = ({
 
         <div className="pt-3 border-t border-slate-100 flex gap-2 items-center">
           <button
-            onClick={() => onAbrirChat(consulta.idDentista, consulta.idBeneficiario)}
-            className="bg-blue-50 text-blue-600 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
+            onClick={() => onAbrirChat(idDentista, consulta.idBeneficiario)}
+            className="relative bg-blue-50 text-blue-600 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
             title="Abrir Chat"
           >
             <MessageCircle size={16} />
+            {mensagensNaoLidas > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm animate-in zoom-in">
+                {mensagensNaoLidas}
+              </span>
+            )}
           </button>
           <input
             type="text"
@@ -582,14 +616,15 @@ const DashboardDentista = () => {
                   <div className="space-y-3">
                     {agendaFiltrada.slice(0, 4).map((item) => (
                       <CardAgenda
-                      key={item.idConsulta}
-                      consulta={item}
-                      pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
-                      data={formatarData(item.dtConsulta)}
-                      hora={formatarHora(item.hrConsulta)}
-                      onRecarregar={carregarDados}
-                      onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
-                    />
+                        key={item.idConsulta}
+                        consulta={item}
+                        pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                        data={formatarData(item.dtConsulta)}
+                        hora={formatarHora(item.hrConsulta)}
+                        onRecarregar={carregarDados}
+                        onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
+                        isChatAberto={chatAberto.isOpen && chatAberto.idBeneficiario === item.idBeneficiario}
+                      />
                     ))}
                     {agendaFiltrada.length === 0 && (
                       <p className="text-sm text-slate-500">
@@ -653,14 +688,15 @@ const DashboardDentista = () => {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
                 {agendaFiltrada.map((item) => (
                   <CardAgenda
-                      key={item.idConsulta}
-                      consulta={item}
-                      pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
-                      data={formatarData(item.dtConsulta)}
-                      hora={formatarHora(item.hrConsulta)}
-                      onRecarregar={carregarDados}
-                      onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
-                    />
+                    key={item.idConsulta}
+                    consulta={item}
+                    pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                    data={formatarData(item.dtConsulta)}
+                    hora={formatarHora(item.hrConsulta)}
+                    onRecarregar={carregarDados}
+                    onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
+                    isChatAberto={chatAberto.isOpen && chatAberto.idBeneficiario === item.idBeneficiario}
+                  />
                 ))}
                 {agendaFiltrada.length === 0 && (
                   <p className="text-slate-500">

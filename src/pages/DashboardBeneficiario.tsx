@@ -12,89 +12,121 @@ import {
   LogOut,
   CheckCircle2,
   AlertCircle,
-  MessageSquarePlus,
-  CalendarPlus,
-  AlertTriangle,
   MessageCircle
 } from "lucide-react";
 import { ChatComponent } from "../components/ChatComponent";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
-const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataFormatada, horaFormatada, onAbrirChat }: any) => (
-  <div className="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden relative group">
-    <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
-    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
-            <Calendar size={32} />
-          </div>
-          <div>
-            <p className="text-slate-500 font-bold text-sm uppercase mb-1">
-              Data Agendada
-            </p>
-            <p className="text-blue-600 font-black text-2xl leading-none">
-              {dataFormatada}
-            </p>
-            <p className="text-slate-700 font-bold mt-1">às {horaFormatada}</p>
-          </div>
-        </div>
-        <div className="space-y-4 pt-4 border-t border-slate-100">
-          <div>
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-              Dentista Responsável
-            </h4>
-            <p className="font-bold text-slate-900 flex items-center gap-2">
-              <Stethoscope size={16} className="text-blue-500" />{" "}
-              {dentistaNome}
-            </p>
-          </div>
-          <div>
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-              Local do Atendimento
-            </h4>
-            <p className="text-slate-600 font-medium text-sm flex items-center gap-2">
-              <MapPin size={16} className="text-red-500 shrink-0" /> {enderecoCompleto}
-            </p>
-          </div>
-        </div>
-      </div>
+const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataFormatada, horaFormatada, onAbrirChat, isChatAberto }: any) => {
+  const [mensagensNaoLidas, setMensagensNaoLidas] = useState(0);
 
-      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 flex flex-col justify-center">
-        <div>
-          <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
-            <AlertCircle size={16} className="text-blue-500" /> Motivo da Consulta
-          </h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Avaliação Odontológica / Tratamento Clínico.
-          </p>
-        </div>
-        <div className="pt-4 border-t border-slate-200">
-          <h4 className="font-bold text-orange-600 mb-1">
-            Recomendações do Dentista:
-          </h4>
-          {consulta.dsRecomendacao ? (
-            <p className="text-sm text-slate-600 italic">
-              "{consulta.dsRecomendacao}"
-            </p>
-          ) : (
-             <p className="text-sm text-slate-400 italic">
-             Nenhuma recomendação prévia informada pelo médico.
-           </p>
-          )}
+  useEffect(() => {
+    const verificarMensagens = async () => {
+      try {
+        const idBeneficiario = consulta.idBeneficiario || Number(localStorage.getItem("userId")) || 1;
+        const res = await fetch(`${API_BASE_URL}/mensagens/${consulta.idDentista}/${idBeneficiario}`);
+        if (res.ok) {
+          const msgs = await res.json();
+          const recebidas = msgs.filter((m: any) => m.enviadoPor === "D").length;
           
-          <button
-            onClick={() => onAbrirChat(consulta.idDentista)}
-            className="mt-6 w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 text-sm shadow-sm active:scale-[0.98]"
-          >
-            <MessageCircle size={18} /> Falar com o Dentista
-          </button>
+          if (isChatAberto) {
+            localStorage.setItem(`chat_read_${consulta.idDentista}_${idBeneficiario}`, recebidas.toString());
+            setMensagensNaoLidas(0);
+          } else {
+            const lidas = Number(localStorage.getItem(`chat_read_${consulta.idDentista}_${idBeneficiario}`) || 0);
+            const naoLidas = recebidas - lidas;
+            setMensagensNaoLidas(naoLidas > 0 ? naoLidas : 0);
+          }
+        }
+      } catch (e) {}
+    };
+
+    verificarMensagens();
+    const interval = setInterval(verificarMensagens, 5000);
+    return () => clearInterval(interval);
+  }, [consulta.idDentista, consulta.idBeneficiario, isChatAberto]);
+
+  return (
+    <div className="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden relative group">
+      <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
+              <Calendar size={32} />
+            </div>
+            <div>
+              <p className="text-slate-500 font-bold text-sm uppercase mb-1">
+                Data Agendada
+              </p>
+              <p className="text-blue-600 font-black text-2xl leading-none">
+                {dataFormatada}
+              </p>
+              <p className="text-slate-700 font-bold mt-1">às {horaFormatada}</p>
+            </div>
+          </div>
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Dentista Responsável
+              </h4>
+              <p className="font-bold text-slate-900 flex items-center gap-2">
+                <Stethoscope size={16} className="text-blue-500" />{" "}
+                {dentistaNome}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                Local do Atendimento
+              </h4>
+              <p className="text-slate-600 font-medium text-sm flex items-center gap-2">
+                <MapPin size={16} className="text-red-500 shrink-0" /> {enderecoCompleto}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 flex flex-col justify-center">
+          <div>
+            <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
+              <AlertCircle size={16} className="text-blue-500" /> Motivo da Consulta
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Avaliação Odontológica / Tratamento Clínico.
+            </p>
+          </div>
+          <div className="pt-4 border-t border-slate-200">
+            <h4 className="font-bold text-orange-600 mb-1">
+              Recomendações do Dentista:
+            </h4>
+            {consulta.dsRecomendacao ? (
+              <p className="text-sm text-slate-600 italic">
+                "{consulta.dsRecomendacao}"
+              </p>
+            ) : (
+               <p className="text-sm text-slate-400 italic">
+               Nenhuma recomendação prévia informada pelo médico.
+             </p>
+            )}
+            
+            <button
+              onClick={() => onAbrirChat(consulta.idDentista)}
+              className="relative mt-6 w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 text-sm shadow-sm active:scale-[0.98]"
+            >
+              <MessageCircle size={18} /> Falar com o Dentista
+              {mensagensNaoLidas > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm animate-in zoom-in">
+                  {mensagensNaoLidas}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const CardHistorico = ({ item, dentistaNome, enderecoCompleto, dataFormatada }: any) => {
   const dia = dataFormatada.split("/")[0];
@@ -398,6 +430,7 @@ const DashboardBeneficiario = () => {
                     dataFormatada={formatarData(consulta.dtConsulta)}
                     horaFormatada={formatarHora(consulta.hrConsulta)}
                     onAbrirChat={(idDentista: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario: idBeneficiarioLogado })}
+                    isChatAberto={chatAberto.isOpen && chatAberto.idDentista === consulta.idDentista}
                   />
                 ))
               ) : (
