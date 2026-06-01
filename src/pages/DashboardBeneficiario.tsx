@@ -12,11 +12,16 @@ import {
   LogOut,
   CheckCircle2,
   AlertCircle,
+  MessageSquarePlus,
+  CalendarPlus,
+  AlertTriangle,
+  MessageCircle
 } from "lucide-react";
+import { ChatComponent } from "../components/ChatComponent";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
-const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataFormatada, horaFormatada }: any) => (
+const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataFormatada, horaFormatada, onAbrirChat }: any) => (
   <div className="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden relative group">
     <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -78,6 +83,13 @@ const CardConsultaAtiva = ({ consulta, dentistaNome, enderecoCompleto, dataForma
              Nenhuma recomendação prévia informada pelo médico.
            </p>
           )}
+          
+          <button
+            onClick={() => onAbrirChat(consulta.idDentista)}
+            className="mt-6 w-full bg-blue-100 text-blue-700 font-bold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-center gap-2 text-sm shadow-sm active:scale-[0.98]"
+          >
+            <MessageCircle size={18} /> Falar com o Dentista
+          </button>
         </div>
       </div>
     </div>
@@ -117,6 +129,8 @@ const CardHistorico = ({ item, dentistaNome, enderecoCompleto, dataFormatada }: 
 const DashboardBeneficiario = () => {
   const navigate = useNavigate();
   const idBeneficiarioLogado = Number(localStorage.getItem("userId")) || 1;
+
+  const [chatAberto, setChatAberto] = useState({ isOpen: false, idDentista: 0, idBeneficiario: 0 });
 
   const [secaoAtiva, setSecaoAtiva] = useState("agenda");
   const [atualizacaoSucesso, setAtualizacaoSucesso] = useState(false);
@@ -383,6 +397,7 @@ const DashboardBeneficiario = () => {
                     enderecoCompleto={getEnderecoCompleto(consulta.idEndereco)}
                     dataFormatada={formatarData(consulta.dtConsulta)}
                     horaFormatada={formatarHora(consulta.hrConsulta)}
+                    onAbrirChat={(idDentista: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario: idBeneficiarioLogado })}
                   />
                 ))
               ) : (
@@ -548,6 +563,16 @@ const DashboardBeneficiario = () => {
             </div>
           )}
         </div>
+        {chatAberto.isOpen && (
+                  <ChatComponent
+                    idDentista={chatAberto.idDentista}
+                    idBeneficiario={chatAberto.idBeneficiario}
+                    tipoUsuario="B"
+                    onClose={() =>
+                      setChatAberto({ isOpen: false, idDentista: 0, idBeneficiario: 0 })
+                    }
+                  />
+                )}
       </main>
     </div>
   );

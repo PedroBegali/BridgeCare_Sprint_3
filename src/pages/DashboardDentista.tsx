@@ -18,7 +18,9 @@ import {
   CalendarPlus,
   AlertTriangle,
   LogOut,
+  MessageCircle
 } from "lucide-react";
+import { ChatComponent } from "../components/ChatComponent";
 
 const API_BASE_URL = "https://api-backend-bridgecare.onrender.com";
 
@@ -77,6 +79,7 @@ const CardAgenda = ({
   data,
   hora,
   onRecarregar,
+  onAbrirChat,
 }: any) => {
   const [recomendacao, setRecomendacao] = useState(
     consulta.dsRecomendacao || "",
@@ -112,16 +115,13 @@ const CardAgenda = ({
 
   return (
     <>
-      <ConfirmModal
-        isOpen={modalConfirmRec}
-        config={{
-          title: "Enviar Recomendação",
-          message: `Deseja enviar a recomendação "${recomendacao}" para o paciente ${pacienteNome}?`,
-        }}
-        onCancel={() => setModalConfirmRec(false)}
-        onConfirm={enviarRecomendacao}
+      <ConfirmModal 
+        isOpen={modalConfirmRec} 
+        config={{title: "Enviar Recomendação", message: `Deseja enviar a recomendação "${recomendacao}" para o paciente ${pacienteNome}?`}} 
+        onCancel={() => setModalConfirmRec(false)} 
+        onConfirm={enviarRecomendacao} 
       />
-
+      
       <div className="flex flex-col p-5 rounded-2xl border border-slate-100 hover:border-blue-200 bg-white shadow-sm transition-all group gap-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full">
           <div className="flex items-center gap-4">
@@ -133,8 +133,7 @@ const CardAgenda = ({
                 {pacienteNome}
               </h4>
               <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                <MapPin size={12} className="text-red-400" />{" "}
-                {enderecoFormatado}
+                <MapPin size={12} className="text-red-400" /> {enderecoFormatado}
               </p>
             </div>
           </div>
@@ -147,6 +146,13 @@ const CardAgenda = ({
         </div>
 
         <div className="pt-3 border-t border-slate-100 flex gap-2 items-center">
+          <button
+            onClick={() => onAbrirChat(consulta.idDentista, consulta.idBeneficiario)}
+            className="bg-blue-50 text-blue-600 p-2.5 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
+            title="Abrir Chat"
+          >
+            <MessageCircle size={16} />
+          </button>
           <input
             type="text"
             value={recomendacao}
@@ -170,6 +176,12 @@ const CardAgenda = ({
 
 const DashboardDentista = () => {
   const idDentistaLogado = Number(localStorage.getItem("userId")) || 1;
+
+  const [chatAberto, setChatAberto] = useState({
+    isOpen: false,
+    idDentista: 0,
+    idBeneficiario: 0,
+  });
 
   const [secaoAtiva, setSecaoAtiva] = useState("dashboard");
   const [estaAtivo, setEstaAtivo] = useState(true);
@@ -463,7 +475,6 @@ const DashboardDentista = () => {
             </button>
           ))}
         </nav>
-        
 
         <div className="px-6 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
@@ -571,13 +582,14 @@ const DashboardDentista = () => {
                   <div className="space-y-3">
                     {agendaFiltrada.slice(0, 4).map((item) => (
                       <CardAgenda
-                        key={item.idConsulta}
-                        consulta={item}
-                        pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
-                        data={formatarData(item.dtConsulta)}
-                        hora={formatarHora(item.hrConsulta)}
-                        onRecarregar={carregarDados}
-                      />
+                      key={item.idConsulta}
+                      consulta={item}
+                      pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                      data={formatarData(item.dtConsulta)}
+                      hora={formatarHora(item.hrConsulta)}
+                      onRecarregar={carregarDados}
+                      onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
+                    />
                     ))}
                     {agendaFiltrada.length === 0 && (
                       <p className="text-sm text-slate-500">
@@ -641,13 +653,14 @@ const DashboardDentista = () => {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
                 {agendaFiltrada.map((item) => (
                   <CardAgenda
-                    key={item.idConsulta}
-                    consulta={item}
-                    pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
-                    data={formatarData(item.dtConsulta)}
-                    hora={formatarHora(item.hrConsulta)}
-                    onRecarregar={carregarDados}
-                  />
+                      key={item.idConsulta}
+                      consulta={item}
+                      pacienteNome={getNomeBeneficiario(item.idBeneficiario)}
+                      data={formatarData(item.dtConsulta)}
+                      hora={formatarHora(item.hrConsulta)}
+                      onRecarregar={carregarDados}
+                      onAbrirChat={(idDentista: number, idBeneficiario: number) => setChatAberto({ isOpen: true, idDentista, idBeneficiario })}
+                    />
                 ))}
                 {agendaFiltrada.length === 0 && (
                   <p className="text-slate-500">
@@ -967,6 +980,16 @@ const DashboardDentista = () => {
               )}
             </div>
           </div>
+        )}
+        {chatAberto.isOpen && (
+          <ChatComponent
+            idDentista={chatAberto.idDentista}
+            idBeneficiario={chatAberto.idBeneficiario}
+            tipoUsuario="D"
+            onClose={() =>
+              setChatAberto({ isOpen: false, idDentista: 0, idBeneficiario: 0 })
+            }
+          />
         )}
       </main>
     </div>
