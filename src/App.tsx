@@ -13,6 +13,8 @@ import DashboardDentista from "./pages/DashboardDentista";
 import DashboardBeneficiario from "./pages/DashboardBeneficiario";
 import DashboardAtendente from "./pages/DashboardAtendente";
 import MenuAcessibilidade from "./components/MenuAcessibilidade";
+import JogoAlimentacao from "./pages/jogo/Jogo_Alimentacao";
+import JogoEscovacao from "./pages/jogo/Jogo_Escovacao";
 
 function App() {
   return (
@@ -28,6 +30,11 @@ function App() {
             <Route path="mini-jogos" element={<MiniJogos />} />
 
             <Route path="mini-jogos/memoria" element={<JogoMemoria />} />
+            <Route
+              path="/mini-jogos/alimentacao"
+              element={<JogoAlimentacao />}
+            />
+            <Route path="/mini-jogos/escovacao" element={<JogoEscovacao />} />
 
             <Route path="faq" element={<FAQ />} />
             <Route path="contato" element={<Contato />} />

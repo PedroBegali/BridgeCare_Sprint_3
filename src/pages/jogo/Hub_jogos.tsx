@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Brain, Sparkles, HelpCircle, ArrowLeft } from "lucide-react";
+import { Brain, Sparkles, Apple, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const MiniJogos = () => {
@@ -19,15 +19,15 @@ const MiniJogos = () => {
       titulo: "Escovação Ninja",
       descricao: "Elimine as bactérias antes que o tempo acabe!",
       icone: <Sparkles className="text-white" size={32} />,
-      disponivel: false,
+      disponivel: true,
       cor: "bg-green-500",
     },
     {
-      id: "quiz",
-      titulo: "Quiz do Sorriso",
-      descricao: "Você sabe tudo sobre saúde bucal? Teste seus conhecimentos!",
-      icone: <HelpCircle className="text-white" size={32} />,
-      disponivel: false,
+      id: "alimentacao",
+      titulo: "Chuva Saudável",
+      descricao: "Arraste a boca para pegar os alimentos saudáveis e desvie dos doces!",
+      icone: <Apple className="text-white" size={32} />,
+      disponivel: true,
       cor: "bg-purple-500",
     },
   ];
