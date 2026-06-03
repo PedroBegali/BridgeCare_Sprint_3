@@ -233,7 +233,7 @@ export default function JogoAlimentacao() {
           <div 
             ref={containerRef}
             onPointerMove={handleMove}
-            className={`relative w-full max-w-lg mx-auto h-[300px] md:h-[400px] bg-slate-800 rounded-3xl overflow-hidden shadow-inner border-4 border-slate-700 cursor-none touch-none ${screenShake ? 'shake' : ''}`}
+            className={`relative w-full max-w-lg mx-auto h-75 md:h-100 bg-slate-800 rounded-3xl overflow-hidden shadow-inner border-4 border-slate-700 cursor-none touch-none ${screenShake ? 'shake' : ''}`}
             style={{ 
                backgroundImage: 'linear-gradient(to bottom, #87CEEB, #E0F6FF)',
             }}
