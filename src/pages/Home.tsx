@@ -308,7 +308,7 @@ function Home() {
                         required: "O nome é obrigatório",
                       })}
                       className={`w-full px-5 py-4 bg-slate-50 border ${errors.nome ? "border-red-500" : "border-slate-200"} rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all`}
-                      placeholder="Ex: João Silva"
+                      placeholder="Digite seu nome"
                     />
                     {errors.nome && (
                       <span className="text-red-500 text-xs mt-1">
@@ -324,7 +324,7 @@ function Home() {
                     <input
                       {...register("responsavel")}
                       className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
-                      placeholder="Nome do pai, mãe ou tutor"
+                      placeholder="Nome do pai, mãe..."
                     />
                   </div>
 
