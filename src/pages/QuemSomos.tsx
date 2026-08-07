@@ -1,6 +1,5 @@
 import perfilLucas from "../assets/lucasPerfil.jpg";
 import perfilPedro from "../assets/pedroPerfil.jpg";
-import perfilAlan from "../assets/alanPerfil.jpeg";
 import githubIcon from "../assets/github_icon.png";
 import linkedlnIcon from "../assets/linkedIn_icon.png";
 import { useNavigate } from "react-router-dom";
