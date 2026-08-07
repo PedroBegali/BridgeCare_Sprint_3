@@ -7,7 +7,6 @@ function Footer() {
     <footer className="bg-slate-900 text-slate-300 pt-8 pb-8">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          
           <div className="space-y-4">
             <h3 className="text-3xl font-black text-white tracking-tight">
               BridgeCare
@@ -61,45 +60,9 @@ function Footer() {
             </ul>
           </div>
 
-          
           <div className="space-y-4">
-            <h4 className="text-xl font-bold text-white">
-              Desenvolvido por
-            </h4>
+            <h4 className="text-xl font-bold text-white">Desenvolvido por</h4>
             <div className="space-y-4">
-              
-              {/* Alan Christopher */}
-              <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
-                <p className="font-bold text-slate-100 text-base">
-                  Alan Christopher G. Miranda
-                </p>
-                <p className="opacity-60 text-xs">RM: 567033</p>
-                <div className="flex gap-4 mt-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <a
-                    href="https://github.com/alanchristophermiranda2005-coder"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <img
-                      className="w-6 h-6 invert hover:-translate-y-1 transition-transform"
-                      src={githubIcon}
-                      alt="Github"
-                    />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/alanchristophergonzagamiranda/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <img
-                      className="w-6 h-6 invert hover:-translate-y-1 transition-transform"
-                      src={linkedlnIcon}
-                      alt="LinkedIn"
-                    />
-                  </a>
-                </div>
-              </div>
-
               {/* Lucas Dudena */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
                 <p className="font-bold text-slate-100 text-base">
@@ -134,7 +97,9 @@ function Footer() {
 
               {/* Pedro Begali */}
               <div className="border-l-2 border-slate-700 pl-3 hover:border-blue-500 transition-colors group">
-                <p className="font-bold text-slate-100 text-base">Pedro Begali Campos</p>
+                <p className="font-bold text-slate-100 text-base">
+                  Pedro Begali Campos
+                </p>
                 <p className="opacity-60 text-xs">RM: 567478</p>
                 <div className="flex gap-4 mt-2 opacity-50 group-hover:opacity-100 transition-opacity">
                   <a
@@ -161,7 +126,6 @@ function Footer() {
                   </a>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

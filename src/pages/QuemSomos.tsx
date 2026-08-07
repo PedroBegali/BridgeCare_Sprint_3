@@ -82,13 +82,6 @@ function QuemSomos() {
       github: "https://github.com/ldudena",
       linkedin: "https://www.linkedin.com/in/lucas-de-souza-dudena-079646382",
     },
-    {
-      nome: "Alan Christopher G. Miranda",
-      rm: "567033",
-      foto: perfilAlan,
-      github: "https://github.com/alanchristophermiranda2005-coder",
-      linkedin: "https://www.linkedin.com/in/alanchristophergonzagamiranda/",
-    },
   ];
 
   return (

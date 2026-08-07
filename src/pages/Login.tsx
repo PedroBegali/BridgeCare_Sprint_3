@@ -44,7 +44,7 @@ const Login = () => {
     }
 
     if (loginType === "atendente") {
-      if (identificador !== "admTdB") {
+      if (identificador !== "admin") {
         setErro("Usuário de atendente incorreto.");
         setLoading(false);
         return;
@@ -191,8 +191,8 @@ const Login = () => {
                 className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium"
                 placeholder={
                   loginType === "atendente"
-                    ? "Digite seu usuário"
-                    : "000.000.000-00"
+                    ? "senha: admin"
+                    : "ex: 101.101.101-01"
                 }
                 value={identificador}
                 onChange={handleIdentificadorChange}
@@ -207,7 +207,7 @@ const Login = () => {
                 type="password"
                 required
                 className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                placeholder="••••••"
+                placeholder="123456"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
               />
